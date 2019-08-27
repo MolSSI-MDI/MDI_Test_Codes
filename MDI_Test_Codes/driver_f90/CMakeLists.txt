@@ -18,8 +18,6 @@ include_directories( ${mdi_path} )
 
 add_executable(driver_f90
                driver_f90.f90)
-target_link_libraries(driver_f90 mdi
-                      ${MPI_LIBRARIES})
 set_target_properties(driver_f90 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
@@ -28,11 +26,15 @@ set_target_properties(driver_f90 PROPERTIES
 # Ensure that MPI is properly linked
 
 if(NOT MPI_FOUND)
-   target_include_directories(driver_f90 PRIVATE ${CMAKE_BINARY_DIR}/MDI_Test_Codes/STUBS_MPI)
+   target_include_directories(driver_f90 PRIVATE ${CMAKE_BINARY_DIR}/MDI_Test_Codes/STUBS_MPI/)
+   target_link_libraries(driver_f90 mdi
+                         mpi)
 else()
    target_include_directories(driver_f90 PUBLIC
       ${mdi_path}
       ${MPI_INCLUDE_PATH} )
+   target_link_libraries(driver_f90 mdi
+                         ${MPI_LIBRARIES})
 endif()
 if(MPI_COMPILE_FLAGS)
    set_target_properties(driver_f90 PROPERTIES
