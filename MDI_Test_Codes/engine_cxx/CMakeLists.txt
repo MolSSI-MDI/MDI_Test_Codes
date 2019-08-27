@@ -11,9 +11,8 @@ endif()
 
 # Link to MDI
 
-set( MDI_LOCATION ${CMAKE_BINARY_DIR}/lib/mdi/MDI_Library/ )
-link_directories( ${MDI_LOCATION} )
-include_directories(${MDI_LOCATION})
+link_directories( ${mdi_path} )
+include_directories( ${mdi_path} )
 
 
 
