@@ -1,3 +1,5 @@
+add_subdirectory(STUBS_MPI)
+
 if ( use_C )
    add_subdirectory(driver_cxx)
    add_subdirectory(engine_cxx)

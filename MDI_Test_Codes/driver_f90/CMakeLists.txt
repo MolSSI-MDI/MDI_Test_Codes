@@ -3,8 +3,6 @@
 find_package(MPI)
 if(MPI_FOUND)
    include_directories(${MPI_INCLUDE_PATH})
-else()
-   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/../STUBS_MPI/mpi.h ${CMAKE_CURRENT_BINARY_DIR}/../STUBS_MPI/mpi.h COPYONLY)
 endif()
 
 
@@ -30,7 +28,11 @@ set_target_properties(driver_f90 PROPERTIES
 # Ensure that MPI is properly linked
 
 if(NOT MPI_FOUND)
-   target_include_directories(driver_f90 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../STUBS_MPI/)
+   target_include_directories(driver_f90 PRIVATE ${CMAKE_BINARY_DIR}/MDI_Test_Codes/STUBS_MPI)
+else()
+   target_include_directories(driver_f90 PUBLIC
+      ${mdi_path}
+      ${MPI_INCLUDE_PATH} )
 endif()
 if(MPI_COMPILE_FLAGS)
    set_target_properties(driver_f90 PROPERTIES
