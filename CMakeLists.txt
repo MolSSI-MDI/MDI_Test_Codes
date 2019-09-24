@@ -2,10 +2,20 @@ cmake_minimum_required(VERSION 3.5)
 
 # mdi_path option
 
-option(mdi_path "Path to the MDI Library")
-if ( NOT mdi_path )
-   set( mdi_path ${CMAKE_BINARY_DIR}/lib/mdi/MDI_Library/ )
+option(mdi_include_path "Absolute path to the MDI Library include files")
+option(mdi_lib_path "Absolute path to the MDI Library library files")
+if ( (NOT mdi_include_path) AND (NOT mdi_lib_path) )
+   set( mdi_include_path ${CMAKE_BINARY_DIR}/lib/mdi/MDI_Library/ )
+   set( mdi_lib_path ${CMAKE_BINARY_DIR}/lib/mdi/MDI_Library/ )
    set( build_mdi ON )
+elseif( NOT mdi_lib_path )
+   # Assume the library and include files are in the same directory
+   set( mdi_lib_path ${mdi_include_path} )
+   set( build_mdi OFF )
+elseif( NOT mdi_include_path )
+   # Assume the library and include files are in the same directory
+   set( mdi_include_path ${mdi_lib_path} )
+   set( build_mdi OFF )
 else()
    set( build_mdi OFF )
 endif()

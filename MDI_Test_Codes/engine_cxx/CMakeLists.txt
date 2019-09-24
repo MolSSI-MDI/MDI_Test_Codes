@@ -11,8 +11,8 @@ endif()
 
 # Link to MDI
 
-link_directories( ${mdi_path} )
-include_directories( ${mdi_path} )
+link_directories( ${mdi_lib_path} )
+include_directories( ${mdi_include_path} )
 
 
 
