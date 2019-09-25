@@ -1,4 +1,4 @@
 # Compile the MPI module
 
 add_library(mpi SHARED
-            mpi.f90)
+            mpi.F90)
