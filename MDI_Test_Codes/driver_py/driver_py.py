@@ -1,6 +1,9 @@
 import sys
 import time
-import lib.mdi.MDI_Library as mdi
+try:
+    import mdi
+except ImportError:
+    from lib.mdi import MDI_Library as mdi
 try:
     import numpy
     use_numpy = True
