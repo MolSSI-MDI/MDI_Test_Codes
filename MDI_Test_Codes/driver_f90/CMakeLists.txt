@@ -31,7 +31,7 @@ if(NOT MPI_Fortran_FOUND)
                          mpi)
 else()
    target_include_directories(driver_f90 PUBLIC
-      ${mdi_path}
+      ${mdi_include_path}
       ${MPI_Fortran_INCLUDE_PATH} )
    target_link_libraries(driver_f90 mdi
                          ${MPI_Fortran_LIBRARIES})
