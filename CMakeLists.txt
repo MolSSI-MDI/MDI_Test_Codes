@@ -21,12 +21,13 @@ elseif( language STREQUAL "Fortran" )
    set(use_Fortran "Fortran")
 elseif( language STREQUAL "Python" )
    set(use_C "C")
-   set(use_Python "")
+   set(use_Python "Python")
 else()
    message( FATAL_ERROR "Language not supported.  Supported languages: C, Fortran, Python" )
 endif()
 
-project(MDI
+project(mdi
+        VERSION 0.6.5
         LANGUAGES ${use_C} ${use_Fortran})
 
 add_subdirectory(MDI_Library)
