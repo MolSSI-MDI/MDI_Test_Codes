@@ -17,7 +17,7 @@ include_directories( ${mdi_include_path} )
 # Compile the driver
 
 add_executable(driver_f90
-               driver_f90.f90)
+               driver_f90.F90)
 set_target_properties(driver_f90 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 

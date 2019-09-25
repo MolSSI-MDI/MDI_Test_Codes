@@ -17,7 +17,7 @@ include_directories( ${mdi_include_path} )
 # Compile the engine
 
 add_executable(engine_f90
-               engine_f90.f90)
+               engine_f90.F90)
 set_target_properties(engine_f90 PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 
