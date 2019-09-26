@@ -47,6 +47,10 @@ script:
   - ls lib
   - ls lib/mdi
   - ls lib/mdi/MDI_Library
+  - which python
+  - python --version
+  - which python3
+  - python3 --version
 
   # Run a CXX-CXX test calculation using TCP/IP
   - ../tests/cxx-cxx_tcp.sh
