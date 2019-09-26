@@ -105,10 +105,10 @@
 
     SUBROUTINE MDI_Init(foptions, fworld_comm, ierr)
       IMPLICIT NONE
-#ifdef _WIN32
+!!!#ifdef _WIN32
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Init
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Init
-#endif
+!!!#endif
       CHARACTER(LEN=*), INTENT(IN) :: foptions
       INTEGER, INTENT(INOUT) :: fworld_comm
       INTEGER, INTENT(OUT) :: ierr
@@ -118,10 +118,10 @@
 
     SUBROUTINE MDI_Accept_Communicator(communicator)
       IMPLICIT NONE
-#ifdef _WIN32
+!!!#ifdef _WIN32
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
-#endif
+!!!#endif
       INTEGER, INTENT(OUT) :: communicator
 
       communicator = MDI_Accept_Communicator_()
