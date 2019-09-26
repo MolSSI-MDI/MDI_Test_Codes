@@ -106,7 +106,7 @@
 
     SUBROUTINE MDI_Init(foptions, fworld_comm, ierr)
       IMPLICIT NONE
-#ifdef MDI_WINDOWS
+#if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Init
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Init
 #endif
@@ -119,7 +119,7 @@
 
     SUBROUTINE MDI_Accept_Communicator(communicator)
       IMPLICIT NONE
-#ifdef MDI_WINDOWS
+#if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
 #endif
