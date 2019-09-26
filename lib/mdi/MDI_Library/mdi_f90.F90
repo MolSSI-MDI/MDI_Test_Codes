@@ -53,6 +53,8 @@
 
      FUNCTION MDI_Init_(options, world_comm) bind(c, name="MDI_Init")
        USE, INTRINSIC :: iso_c_binding
+       !GCC$ ATTRIBUTES DLLIMPORT :: MDI_Init
+       !DEC$ ATTRIBUTES DLLIMPORT :: MDI_Init
        CHARACTER(C_CHAR)                        :: options(*)
        INTEGER(KIND=C_INT)                      :: world_comm
        INTEGER(KIND=C_INT)                      :: MDI_Init_
@@ -60,6 +62,8 @@
 
      FUNCTION MDI_Accept_Communicator_() bind(c, name="MDI_Accept_Communicator")
        USE, INTRINSIC :: iso_c_binding
+       !GCC$ ATTRIBUTES DLLIMPORT :: MDI_Accept_Communicator
+       !DEC$ ATTRIBUTES DLLIMPORT :: MDI_Accept_Communicator
        INTEGER(KIND=C_INT)                      :: MDI_Accept_Communicator_
      END FUNCTION MDI_Accept_Communicator_
 
