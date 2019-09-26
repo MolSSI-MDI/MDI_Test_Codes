@@ -102,9 +102,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/mdi.h ${CMAKE_CURRENT_BINARY_DIR}/mdi
 
 # gfortran has trouble identifying Windows, so CMake will set the appropriate defines
 if (WIN32)
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DEFINES/windows.inc ${CMAKE_CURRENT_SOURCE_DIR}/mdi.inc COPYONLY)
+    add_definitions(-DMDI_WINDOWS=1)
 else()
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/DEFINES/posix.inc ${CMAKE_CURRENT_SOURCE_DIR}/mdi.inc COPYONLY)
+    add_definitions(-DMDI_WINDOWS=0)
 endif()
 
 
