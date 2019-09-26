@@ -55,7 +55,9 @@ script:
   - ../tests/cxx-f90_tcp.sh
 
   # Run a CXX-Python test calculation using TCP/IP
-  - ../tests/cxx-py_tcp.sh
+  #- ../tests/cxx-py_tcp.sh
+  - cp ../tests/cxx-py_tcp.sh .
+  - ./cxx-py_tcp.sh
 
   # Run a Fortran-CXX test calculation using TCP/IP
   - ../tests/f90-cxx_tcp.sh
