@@ -44,6 +44,9 @@ install:
 
 script:
   - ls
+  - ls lib
+  - ls lib/mdi
+  - ls lib/mdi/MDI_Library
 
   # Run a CXX-CXX test calculation using TCP/IP
   - ../tests/cxx-cxx_tcp.sh
