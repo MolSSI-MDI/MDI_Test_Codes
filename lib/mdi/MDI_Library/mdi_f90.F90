@@ -1,4 +1,5 @@
 ! Fortran 90 wrapper for the MolSSI Driver Interface
+#include "mdi.inc"
 
    MODULE MDI
    USE ISO_C_BINDING
@@ -53,8 +54,6 @@
 
      FUNCTION MDI_Init_(options, world_comm) bind(c, name="MDI_Init")
        USE, INTRINSIC :: iso_c_binding
-       !GCC$ ATTRIBUTES DLLIMPORT :: MDI_Init
-       !DEC$ ATTRIBUTES DLLIMPORT :: MDI_Init
        CHARACTER(C_CHAR)                        :: options(*)
        INTEGER(KIND=C_INT)                      :: world_comm
        INTEGER(KIND=C_INT)                      :: MDI_Init_
@@ -62,8 +61,6 @@
 
      FUNCTION MDI_Accept_Communicator_() bind(c, name="MDI_Accept_Communicator")
        USE, INTRINSIC :: iso_c_binding
-       !GCC$ ATTRIBUTES DLLIMPORT :: MDI_Accept_Communicator
-       !DEC$ ATTRIBUTES DLLIMPORT :: MDI_Accept_Communicator
        INTEGER(KIND=C_INT)                      :: MDI_Accept_Communicator_
      END FUNCTION MDI_Accept_Communicator_
 
@@ -109,10 +106,10 @@
 
     SUBROUTINE MDI_Init(foptions, fworld_comm, ierr)
       IMPLICIT NONE
-!!!#ifdef _WIN32
+#ifdef MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Init
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Init
-!!!#endif
+#endif
       CHARACTER(LEN=*), INTENT(IN) :: foptions
       INTEGER, INTENT(INOUT) :: fworld_comm
       INTEGER, INTENT(OUT) :: ierr
@@ -122,10 +119,10 @@
 
     SUBROUTINE MDI_Accept_Communicator(communicator)
       IMPLICIT NONE
-!!!#ifdef _WIN32
+#ifdef MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Accept_Communicator
-!!!#endif
+#endif
       INTEGER, INTENT(OUT) :: communicator
 
       communicator = MDI_Accept_Communicator_()
