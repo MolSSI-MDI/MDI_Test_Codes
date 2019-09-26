@@ -1,9 +1,13 @@
 import sys
 import time
-try:
+try: # Check for installed package
     import mdi
-except ImportError:
-    from lib.mdi import MDI_Library as mdi
+except ImportError: # Check for local build
+    try: # Python 3
+        from lib.mdi import MDI_Library as mdi
+    except ImportError: # Python 2
+        sys.path.append('lib/mdi')
+        import MDI_Library as mdi
 try:
     import numpy
     use_numpy = True
