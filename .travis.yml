@@ -19,6 +19,9 @@ matrix:
         - sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
+      before_script:
+        # Run a CXX-CXX test calculation using TCP/IP
+        - ../tests/cxx-cxx_mpi.sh
     - os: osx
       compiler: gcc
       before_install:
