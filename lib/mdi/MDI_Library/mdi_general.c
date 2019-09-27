@@ -156,8 +156,6 @@ int general_init(const char* options, void* world_comm) {
   // get the MPI rank
   MPI_Comm mpi_communicator;
   int mpi_rank = 0;
-  //printf("sizeof MPI_Comm, Int: %d %d\n",sizeof(MPI_Comm), sizeof(int));
-  //printf("sizeof MPI_Fint: %d\n",sizeof(MPI_Fint));
   if ( world_comm == NULL ) {
     mpi_communicator = 0;
     mpi_rank = 0;
@@ -176,7 +174,6 @@ int general_init(const char* options, void* world_comm) {
       mpi_rank = 0;
     }
   }
-  return 0;
 
   // redirect the standard output
   if ( has_output_file == 1 ) {
@@ -261,7 +258,14 @@ int general_init(const char* options, void* world_comm) {
   // set the MPI communicator correctly
   if ( mpi_initialized == 1 ) {
     if ( do_split == 1 ) {
-      mpi_update_world_comm(world_comm);
+      if ( strcmp(language, "Fortran") == 0 ) {
+	mpi_communicator = MPI_Comm_f2c( *(MPI_Fint*) world_comm );
+	mpi_update_world_comm( (void*) mpi_communicator);
+	world_comm = (void*) &MPI_Comm_c2f( mpi_communicator )
+      }
+      else {
+	mpi_update_world_comm(world_comm);
+      }
     }
   }
 
