@@ -40,7 +40,9 @@ IMPLICIT NONE
 
          ! Initialize the MDI Library
          world_comm = MPI_COMM_WORLD
-!         call MDI_Init( mdi_options, world_comm, ierr)
+         WRITE(6,*)'BEFORE: ',world_comm
+         call MDI_Init( mdi_options, world_comm, ierr)
+         WRITE(6,*)'AFTER:  ',world_comm
 
          EXIT
       END IF
