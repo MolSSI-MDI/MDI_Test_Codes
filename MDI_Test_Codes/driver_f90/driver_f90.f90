@@ -39,7 +39,7 @@ IMPLICIT NONE
          CALL get_command_argument(iarg + 1, mdi_options)
 
          ! Initialize the MDI Library
-!         world_comm = MPI_COMM_WORLD
+         world_comm = MPI_COMM_WORLD
 !         call MDI_Init( mdi_options, world_comm, ierr)
 
          EXIT
@@ -51,7 +51,7 @@ IMPLICIT NONE
    ! Get the MPI rank within world_comm
 !   call MPI_Comm_rank( world_comm, world_rank, ierr );
 
-   ! Connct to the engine
+   ! Connect to the engine
 !   call MDI_Accept_Communicator(comm)
 
    ! Determine the name of the engine
@@ -63,7 +63,7 @@ IMPLICIT NONE
 !   call MDI_Send_Command("EXIT", comm, ierr)
 
    ! Synchronize all MPI ranks
-!   call MPI_Barrier( world_comm, ierr )
+   call MPI_Barrier( world_comm, ierr )
    call MPI_Finalize( ierr )
 
 END PROGRAM DRIVER_F90
