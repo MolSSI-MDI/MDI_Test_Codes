@@ -19,10 +19,12 @@ IMPLICIT NONE
    !DOUBLE PRECISION :: conversion_factor
 
    INTEGER :: iarg, ierr
-   INTEGER :: world_comm, world_rank
+!   INTEGER :: world_comm, world_rank
+   INTEGER :: world_rank
    INTEGER :: comm
    CHARACTER(len=1024) :: arg, mdi_options
    CHARACTER(len=:), ALLOCATABLE :: message
+   MPI_Comm :: world_comm
 
    ALLOCATE( character(MDI_NAME_LENGTH) :: message )
 
@@ -41,8 +43,7 @@ IMPLICIT NONE
          ! Initialize the MDI Library
          world_comm = MPI_COMM_WORLD
          WRITE(6,*)'BEFORE: ',world_comm
-!         call MDI_Init( mdi_options, world_comm, ierr)
-         call MDI_Init( mdi_options, MPI_COMM_WORLD, ierr)
+         call MDI_Init( mdi_options, world_comm, ierr)
          WRITE(6,*)'AFTER:  ',world_comm
 
          EXIT
