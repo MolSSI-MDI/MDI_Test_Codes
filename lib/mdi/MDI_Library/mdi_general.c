@@ -57,7 +57,6 @@ int general_init(const char* options, void* world_comm) {
   int has_output_file = 0;
 
   // get the MPI rank
-  return 0;
   MPI_Comm mpi_communicator;
   int mpi_rank = 0;
   if ( world_comm == NULL ) {
@@ -73,6 +72,7 @@ int general_init(const char* options, void* world_comm) {
       mpi_rank = 0;
     }
   }
+  return 0;
 
   // calculate argc
   char* argv_line = strdup(options);
