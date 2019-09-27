@@ -30,40 +30,40 @@ IMPLICIT NONE
    call MPI_INIT(ierr)
 
    ! Read through all the command line options
-   iarg = 0
-   DO
-      CALL get_command_argument(iarg, arg)
-      IF (LEN_TRIM(arg) == 0) EXIT
-
-      IF (TRIM(arg) .eq. "-mdi") THEN
-         CALL get_command_argument(iarg + 1, mdi_options)
-
-         ! Initialize the MDI Library
-         world_comm = MPI_COMM_WORLD
-         call MDI_Init( mdi_options, world_comm, ierr)
-
-         EXIT
-      END IF
-
-      iarg = iarg + 1
-   END DO
+!   iarg = 0
+!   DO
+!      CALL get_command_argument(iarg, arg)
+!      IF (LEN_TRIM(arg) == 0) EXIT
+!
+!      IF (TRIM(arg) .eq. "-mdi") THEN
+!         CALL get_command_argument(iarg + 1, mdi_options)
+!
+!         ! Initialize the MDI Library
+!         world_comm = MPI_COMM_WORLD
+!         call MDI_Init( mdi_options, world_comm, ierr)
+!
+!         EXIT
+!      END IF
+!
+!      iarg = iarg + 1
+!   END DO
 
    ! Get the MPI rank within world_comm
-   call MPI_Comm_rank( world_comm, world_rank, ierr );
+!   call MPI_Comm_rank( world_comm, world_rank, ierr );
 
    ! Connct to the engine
-   call MDI_Accept_Communicator(comm)
+!   call MDI_Accept_Communicator(comm)
 
    ! Determine the name of the engine
-   call MDI_Send_Command("<NAME", comm, ierr)
-   call MDI_Recv(message, MDI_NAME_LENGTH, MDI_CHAR, comm, ierr)
+!   call MDI_Send_Command("<NAME", comm, ierr)
+!   call MDI_Recv(message, MDI_NAME_LENGTH, MDI_CHAR, comm, ierr)
 
-   WRITE(6,*)'Engine name: ', message
+!   WRITE(6,*)'Engine name: ', message
 
-   call MDI_Send_Command("EXIT", comm, ierr)
+!   call MDI_Send_Command("EXIT", comm, ierr)
 
    ! Synchronize all MPI ranks
-   call MPI_Barrier( world_comm, ierr )
-   call MPI_Finalize( ierr )
+!   call MPI_Barrier( world_comm, ierr )
+!   call MPI_Finalize( ierr )
 
 END PROGRAM DRIVER_F90
