@@ -33,7 +33,7 @@ matrix:
       install:
          - mkdir build
          - cd build
-         - cmake -G "MinGW Makefiles" -Dlanguage=C ../
+         - cmake -G "MinGW Makefiles" ../
          - mingw32-make
 
 install:
@@ -49,25 +49,25 @@ script:
   - ../tests/cxx-cxx_tcp.sh
 
   # Run a CXX-Fortran test calculation using TCP/IP
-  #- ../tests/cxx-f90_tcp.sh
+  - ../tests/cxx-f90_tcp.sh
 
   # Run a CXX-Python test calculation using TCP/IP
   - ../tests/cxx-py_tcp.sh
 
   # Run a Fortran-CXX test calculation using TCP/IP
-  #- ../tests/f90-cxx_tcp.sh
+  - ../tests/f90-cxx_tcp.sh
 
   # Run a Fortran-Fortran test calculation using TCP/IP 
-  #- ../tests/f90-f90_tcp.sh
+  - ../tests/f90-f90_tcp.sh
 
   # Run a Fortran-Python test calculation using TCP/IP
-  #- ../tests/f90-py_tcp.sh
+  - ../tests/f90-py_tcp.sh
 
   # Run a Python-CXX test calculation using TCP/IP
   - ../tests/py-cxx_tcp.sh
 
   # Run a Python-Fortran test calculation using TCP/IP
-  #- ../tests/py-f90_tcp.sh
+  - ../tests/py-f90_tcp.sh
 
   # Run a Python-Python test calculation using TCP/IP
   - ../tests/py-py_tcp.sh
