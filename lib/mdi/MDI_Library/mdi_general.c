@@ -260,8 +260,9 @@ int general_init(const char* options, void* world_comm) {
     if ( do_split == 1 ) {
       if ( strcmp(language, "Fortran") == 0 ) {
 	mpi_communicator = MPI_Comm_f2c( *(MPI_Fint*) world_comm );
-	mpi_update_world_comm( (void*) mpi_communicator);
-	world_comm = (void*) &MPI_Comm_c2f( mpi_communicator )
+	mpi_update_world_comm( (void*) &mpi_communicator);
+        MPI_Fint f_comm = MPI_Comm_c2f( mpi_communicator );
+	world_comm = (void*) &f_comm;
       }
       else {
 	mpi_update_world_comm(world_comm);
