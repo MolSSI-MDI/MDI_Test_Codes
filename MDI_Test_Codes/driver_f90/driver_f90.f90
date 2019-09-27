@@ -24,7 +24,7 @@ IMPLICIT NONE
    INTEGER :: comm
    CHARACTER(len=1024) :: arg, mdi_options
    CHARACTER(len=:), ALLOCATABLE :: message
-   MPI_Comm :: world_comm
+   TYPE(MPI_Comm) :: world_comm
 
    ALLOCATE( character(MDI_NAME_LENGTH) :: message )
 
