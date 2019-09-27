@@ -36,6 +36,11 @@ matrix:
          - cmake -G "MinGW Makefiles" ../
          - mingw32-make
 
+         # Copy the .dll files into the binary directory
+         - cp lib/mdi/MDI_Library/*.dll* .
+         - cp MDI_Test_Codes/STUBS_MPI/*.dll* .
+
+
 install:
   - mkdir build
   - cd build
