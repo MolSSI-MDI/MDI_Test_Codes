@@ -67,7 +67,7 @@ int general_init(const char* options, void* world_comm) {
   }
   else {
     if ( world_rank == -1 ) {
-      if ( true ) {
+      if ( 1 == 1 ) {
 	mpi_communicator = MPI_Comm_f2c( *(MPI_Fint*) world_comm );
       }
       else {
