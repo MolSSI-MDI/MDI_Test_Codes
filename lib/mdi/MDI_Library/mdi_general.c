@@ -59,10 +59,12 @@ int general_init(const char* options, void* world_comm) {
   // get the MPI rank
   MPI_Comm mpi_communicator;
   int mpi_rank = 0;
+  printf("sizeof MPI_Comm, Int: %d %d",sizeof(MPI_Comm), sizeof(int));
   if ( world_comm == NULL ) {
     mpi_communicator = 0;
     mpi_rank = 0;
   }
+  /*
   else {
     if ( world_rank == -1 ) {
       mpi_communicator = *(MPI_Comm*) world_comm;
@@ -72,6 +74,7 @@ int general_init(const char* options, void* world_comm) {
       mpi_rank = 0;
     }
   }
+  */
   return 0;
 
   // calculate argc
