@@ -113,6 +113,10 @@
       INTEGER, INTENT(INOUT) :: fworld_comm
       INTEGER, INTENT(OUT) :: ierr
 
+      !IF ( fworld_comm .eq. MPI_COMM_NULL ) THEN
+      !   WRITE(6,*)'!!!!!!! NULL COMM'
+      !END IF
+
       ierr = MDI_Init_( TRIM(foptions)//c_null_char, fworld_comm )
     END SUBROUTINE MDI_Init
 

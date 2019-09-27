@@ -63,7 +63,6 @@ int general_init(const char* options, void* world_comm) {
     mpi_communicator = 0;
     mpi_rank = 0;
   }
-  /*
   else {
     if ( world_rank == -1 ) {
       mpi_communicator = *(MPI_Comm*) world_comm;
@@ -73,7 +72,6 @@ int general_init(const char* options, void* world_comm) {
       mpi_rank = 0;
     }
   }
-  */
   return 0;
 
   // calculate argc
