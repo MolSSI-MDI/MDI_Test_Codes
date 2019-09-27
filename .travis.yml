@@ -46,13 +46,13 @@ script:
   - ls
 
   # Run a CXX-CXX test calculation using TCP/IP
-  - ../tests/cxx-cxx_tcp.sh
+  #- ../tests/cxx-cxx_tcp.sh
 
   # Run a CXX-Fortran test calculation using TCP/IP
   #- ../tests/cxx-f90_tcp.sh
 
   # Run a CXX-Python test calculation using TCP/IP
-  - ../tests/cxx-py_tcp.sh
+  #- ../tests/cxx-py_tcp.sh
 
   # Run a Fortran-CXX test calculation using TCP/IP
   - ../tests/f90-cxx_tcp.sh
@@ -64,10 +64,10 @@ script:
   #- ../tests/f90-py_tcp.sh
 
   # Run a Python-CXX test calculation using TCP/IP
-  - ../tests/py-cxx_tcp.sh
+  #- ../tests/py-cxx_tcp.sh
 
   # Run a Python-Fortran test calculation using TCP/IP
   #- ../tests/py-f90_tcp.sh
 
   # Run a Python-Python test calculation using TCP/IP
-  - ../tests/py-py_tcp.sh
+  #- ../tests/py-py_tcp.sh
