@@ -43,7 +43,7 @@ IMPLICIT NONE
 
          ! Initialize the MDI Library
          world_comm = MPI_COMM_WORLD
-         WRITE(6,*)'NULL:   ',MPI_COMM_NULL
+         !WRITE(6,*)'NULL:   ',MPI_COMM_NULL
          WRITE(6,*)'WORLD:  ',MPI_COMM_WORLD
          WRITE(6,*)'BEFORE: ',world_comm
          call MDI_Init( mdi_options, world_comm, ierr)
