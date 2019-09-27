@@ -44,8 +44,8 @@ matrix:
         # Run a Python-Fortran test calculation using MPI
         - ../tests/py-f90_mpi.sh
 
-       # Run a Python-Python test calculation using MPI
-       - ../tests/py-py_mpi.sh
+        # Run a Python-Python test calculation using MPI
+        - ../tests/py-py_mpi.sh
     - os: osx
       compiler: gcc
       before_install:
