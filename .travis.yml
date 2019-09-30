@@ -17,6 +17,7 @@ matrix:
       before_install:
         - sudo apt-get install gfortran
         - sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
+        - sudo pip install mpi4py
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
       before_script:
