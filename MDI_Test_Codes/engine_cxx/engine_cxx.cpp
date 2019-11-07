@@ -42,11 +42,11 @@ int main(int argc, char **argv) {
   }
 
   // Connect to the driver
-  MDI_Comm comm = MDI_Accept_Communicator();
+  MDI_Comm comm;
+  MDI_Accept_Communicator(&comm);
 
   // Respond to the driver's commands
   char* command = new char[MDI_COMMAND_LENGTH];
-  //command = NULL; ///////???????
   while( strcmp(command, "EXIT") != 0 ) {
 
     MDI_Recv_Command(command, comm);

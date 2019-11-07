@@ -52,7 +52,7 @@ IMPLICIT NONE
    call MPI_Comm_rank( world_comm, world_rank, ierr );
 
    ! Connct to the engine
-   call MDI_Accept_Communicator(comm)
+   call MDI_Accept_Communicator(comm, ierr)
 
    ! Determine the name of the engine
    call MDI_Send_Command("<NAME", comm, ierr)

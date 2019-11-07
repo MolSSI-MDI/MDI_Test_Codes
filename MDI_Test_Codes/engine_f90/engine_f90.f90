@@ -41,7 +41,7 @@ IMPLICIT NONE
    call MPI_Comm_rank( world_comm, world_rank, ierr );
 
    ! Connct to the driver
-   call MDI_Accept_Communicator(comm)
+   call MDI_Accept_Communicator(comm, ierr)
 
    ! Respond to the driver's commands
    response_loop: DO

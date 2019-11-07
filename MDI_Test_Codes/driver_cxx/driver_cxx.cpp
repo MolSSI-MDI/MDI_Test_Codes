@@ -42,7 +42,8 @@ int main(int argc, char **argv) {
   }
 
   // Connect to the engine
-  MDI_Comm comm = MDI_Accept_Communicator();
+  MDI_Comm comm;
+  MDI_Accept_Communicator(&comm);
 
   // Determine the name of the engine
   char* engine_name = new char[MDI_NAME_LENGTH];
