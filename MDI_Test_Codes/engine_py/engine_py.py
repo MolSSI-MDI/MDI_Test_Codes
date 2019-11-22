@@ -19,6 +19,22 @@ try:
 except ImportError:
     use_mpi4py = False
 
+exit_flag = False
+
+def execute_command(command, comm):
+    global exit_flag
+    print("IN EXECUTE COMMAND")
+    print("   COMMAND: " + str(command))
+
+    if command == "EXIT":
+        exit_flag = True
+    elif command == "<NATOMS":
+        print("SUCCESS")
+    else:
+        raise Exception("Error in engine_py.py: MDI command not recognized")
+
+    return 0
+
 # get the MPI communicator
 if use_mpi4py:
     mpi_world = MPI.COMM_WORLD
@@ -33,10 +49,13 @@ if use_mpi4py:
 else:
     world_rank = 0
 
+# Set the generic execute_command function
+mdi.MDI_Set_Command_Func(execute_command)
+
 # Connect to the driver
 comm = mdi.MDI_Accept_Communicator()
 
-while True:
+while not exit_flag:
     if world_rank == 0:
         command = mdi.MDI_Recv_Command(comm)
     else:
@@ -44,7 +63,4 @@ while True:
     if use_mpi4py:
         command = mpi_world.bcast(command, root=0)
 
-    if command == "EXIT":
-        break
-    else:
-        raise Exception("Error in engine_py.py: MDI command not recognized")
+    execute_command( command, comm )

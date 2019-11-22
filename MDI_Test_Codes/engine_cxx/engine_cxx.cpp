@@ -4,6 +4,23 @@
 #include <string.h>
 #include "mdi.h"
 
+bool exit_signal = false;
+
+int execute_command(const char* command, MDI_Comm comm) {
+  if ( strcmp(command, "EXIT") == 0 ) {
+    exit_signal = true;
+  }
+  else if ( strcmp(command, "<NATOMS") == 0 ) {
+    int natoms = 123;
+    MDI_Send(&natoms, 1, MDI_INT, comm);
+  }
+  else {
+    throw std::runtime_error("Unrecognized command.");
+  }
+
+  return 0;
+}
+
 int main(int argc, char **argv) {
 
   // Initialize the MPI environment
@@ -41,17 +58,24 @@ int main(int argc, char **argv) {
     throw std::runtime_error("The -mdi command line option was not provided.");
   }
 
+  // Create the execute_command pointer
+  int (*generic_command)(const char*, MDI_Comm) = execute_command;
+  MDI_Set_Command_Func(generic_command);
+
   // Connect to the driver
   MDI_Comm comm;
   MDI_Accept_Communicator(&comm);
 
   // Respond to the driver's commands
   char* command = new char[MDI_COMMAND_LENGTH];
-  while( strcmp(command, "EXIT") != 0 ) {
+  while( not exit_signal ) {
 
     MDI_Recv_Command(command, comm);
 
+    execute_command(command, comm);
+
   }
+  free( command );
 
   // Synchronize all MPI ranks
   MPI_Barrier(world_comm);
