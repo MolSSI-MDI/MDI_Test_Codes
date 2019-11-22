@@ -13,7 +13,12 @@
 
   IMPLICIT NONE
 
+!  TYPE command_func_ptr
+!    PROCEDURE(execute_command), POINTER :: ptr
+!  END TYPE command_func_ptr
+
   PROCEDURE(execute_command), POINTER :: generic_command => null()
+!  TYPE(command_func_ptr), 
 
   ABSTRACT INTERFACE
     SUBROUTINE execute_command(buf, comm, ierr)
