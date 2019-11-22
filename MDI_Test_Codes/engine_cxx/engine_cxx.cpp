@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     execute_command(command, comm);
 
   }
-  free( command );
+  delete [] command;
 
   // Synchronize all MPI ranks
   MPI_Barrier(world_comm);
