@@ -1092,3 +1092,11 @@ int MDI_Initialize_New_Code() {
 void MDI_Set_Current_Code(int current_code_in) {
   current_code = current_code_in;
 }
+
+
+/*! \brief Get the current code
+ *
+ */
+int MDI_Get_Current_Code() {
+  return current_code;
+}
