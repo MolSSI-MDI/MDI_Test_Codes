@@ -1080,6 +1080,11 @@ int MDI_Execute_Command(const char* command_name, void* buf, int count, MDI_Data
  *
  */
 int MDI_Initialize_New_Code() {
+  if ( ! is_initialized ) {
+    // initialized the codes vector
+    vector_init(&codes, sizeof(code));
+    is_initialized == 1;
+  }
   return new_code();
 }
 
