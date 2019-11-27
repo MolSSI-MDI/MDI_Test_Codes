@@ -164,7 +164,7 @@ int new_code() {
 
   new_code.is_library = 0;
   new_code.id = codes.size;
-  new_code.intra_rank = -1;
+  new_code.intra_rank = 0;
 
   // add the new code to the global vector of codes
   vector_push_back( &codes, &new_code );

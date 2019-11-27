@@ -564,8 +564,9 @@ int general_builtin_command(const char* buf, MDI_Comm comm) {
  */
 int general_recv_command(char* buf, MDI_Comm comm) {
   code* this_code = get_code(current_code);
+  // only receive on rank 0
   if ( this_code->intra_rank != 0 ) {
-    mdi_error("Called MDI_Recv_Command with incorrect rank");
+    return 0;
   }
   int count = MDI_COMMAND_LENGTH;
   int datatype = MDI_CHAR;
