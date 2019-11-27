@@ -16,36 +16,30 @@
  *
  */
 int library_initialize() {
-  code* this_code = vector_get(&codes, current_code);
-  communicator new_comm;
-  new_comm.method = MDI_LIB;
+  code* this_code = get_code(current_code);
 
-  // allocate the node data
-  vector* node_vec = malloc(sizeof(vector));
-  vector_init(node_vec, sizeof(node));
-  new_comm.nodes = node_vec;
+  MDI_Comm comm_id = new_communicator(this_code->id, MDI_LIB);
+  communicator* new_comm = get_communicator(this_code->id, comm_id);
 
   // allocate the method data
   library_data* libd = malloc(sizeof(library_data));
   libd->connected_code = -1;
   libd->buf_allocated = 0;
   libd->execute_on_send = 0;
-  new_comm.method_data = libd;
+  new_comm->method_data = libd;
 
-  vector_push_back( this_code->comms, &new_comm );
-
-  return this_code->comms->size-1;
+  return new_comm->id;
 }
 
 /*! \brief Set the driver as the current code
  *
  */
 int library_set_driver_current() {
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
 
   // check if the current code is an ENGINE that is linked as a LIBRARY
   if ( strcmp(this_code->role, "ENGINE") == 0 ) {
-    if ( this_code->is_library == 1 ) {
+    if ( this_code->is_library == 1 || this_code->is_library == 2 ) {
       // the calling code must actually be the driver, so update current_code
       int icode;
       int found_driver = 0;
@@ -73,8 +67,7 @@ int library_accept_communicator() {
   library_set_driver_current();
 
   // get the driver code
-  code* this_code = vector_get(&codes, current_code);
-  this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
 
   // if this is a DRIVER, check if there are any ENGINES that are linked to it
   if ( strcmp(this_code->role, "DRIVER") == 0 ) {
@@ -86,7 +79,11 @@ int library_accept_communicator() {
       code* other_code = vector_get(&codes, icode);
       if ( strcmp(other_code->role, "ENGINE") == 0 ) {
 	if ( other_code->is_library == 1 ) {
-	  iengine = icode;
+	  // flag that this library has connected to the driver
+	  other_code->is_library = 2;
+
+	  //iengine = icode;
+	  iengine = other_code->id;
 	  found_engine = 1;
 	}
       }
@@ -96,21 +93,24 @@ int library_accept_communicator() {
     if ( found_engine == 1 ) {
       int icomm = library_initialize();
 
-      // set the connected code for the driver
-      communicator* this_comm = vector_get(this_code->comms,icomm);
-      library_data* libd = (library_data*) this_comm->method_data;
-      libd->connected_code = iengine;
-
       // set the connected code for the engine
-      code* engine_code = vector_get(&codes, iengine);
+      code* engine_code = get_code(iengine);
       if ( engine_code->comms->size != 1 ) {
 	mdi_error("MDI_Accept_Communicator error: Engine appears to have been initialized multiple times");
       }
       communicator* engine_comm = vector_get(engine_code->comms,0);
       library_data* engine_lib = (library_data*) engine_comm->method_data;
       engine_lib->connected_code = current_code;
+
+      // set the connected code for the driver
+      communicator* this_comm = get_communicator(current_code, icomm);
+      library_data* libd = (library_data*) this_comm->method_data;
+      libd->connected_code = engine_code->id;
     }
 
+  }
+  else {
+    mdi_error("MDI_Accept_Communicator error: When using LIBRARY method, engine called MDI_Accept_Communicator");
   }
 
   return 0;
@@ -126,13 +126,12 @@ int library_accept_communicator() {
  *                   MDI communicator associated with the linked code.
  */
 int library_get_matching_handle(MDI_Comm comm) {
-  code* this_code = vector_get(&codes, current_code);
-  communicator* this = vector_get(this_code->comms, comm-1);
+  communicator* this = get_communicator(current_code, comm);
 
   // get the engine code to which this communicator connects
   library_data* libd = (library_data*) this->method_data;
   int iengine = libd->connected_code;
-  code* engine_code = vector_get(&codes, iengine);
+  code* engine_code = get_code(iengine);
 
   // identify the communicator on the engine that connects to the driver
   int icomm;
@@ -143,7 +142,7 @@ int library_get_matching_handle(MDI_Comm comm) {
     library_data* engine_lib = (library_data*) engine_comm->method_data;
     if ( engine_lib->connected_code == current_code ) {
       found_self = 1;
-      engine_comm_handle = icomm+1;
+      engine_comm_handle = engine_comm->id;
     }
   }
 
@@ -168,17 +167,15 @@ int library_get_matching_handle(MDI_Comm comm) {
  */
 int library_set_command(const char* command, MDI_Comm comm) {
   int idriver = current_code;
-  code* this_code = vector_get(&codes, current_code);
-  communicator* this = vector_get(this_code->comms, comm-1);
+  communicator* this = get_communicator(current_code, comm);
 
   // get the engine code to which this communicator connects
   library_data* libd = (library_data*) this->method_data;
   int iengine = libd->connected_code;
-  code* engine_code = vector_get(&codes, iengine);
 
   // get the matching engine communicator
   MDI_Comm engine_comm_handle = library_get_matching_handle(comm);
-  communicator* engine_comm = vector_get(engine_code->comms, engine_comm_handle-1);
+  communicator* engine_comm = get_communicator(iengine, engine_comm_handle);
 
   // set the command
   library_data* engine_lib = (library_data*) engine_comm->method_data;
@@ -202,16 +199,15 @@ int library_execute_command(MDI_Comm comm) {
   int ret;
 
   int idriver = current_code;
-  code* this_code = vector_get(&codes, current_code);
-  communicator* this = vector_get(this_code->comms, comm-1);
+  communicator* this = get_communicator(current_code, comm);
 
   // get the engine code to which this communicator connects
   library_data* libd = (library_data*) this->method_data;
   int iengine = libd->connected_code;
-  code* engine_code = vector_get(&codes, iengine);
+  code* engine_code = get_code(iengine);
 
   MDI_Comm engine_comm_handle = library_get_matching_handle(comm);
-  communicator* engine_comm = vector_get(engine_code->comms, engine_comm_handle-1);
+  communicator* engine_comm = get_communicator(iengine, engine_comm_handle);
   library_data* engine_lib = (library_data*) engine_comm->method_data;
 
   // set the current code to the engine
@@ -250,8 +246,7 @@ int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm com
     mdi_error("MDI data type not recognized in library_send");
   }
 
-  code* this_code = vector_get(&codes, current_code);
-  communicator* this = vector_get(this_code->comms, comm-1);
+  communicator* this = get_communicator(current_code, comm);
   library_data* libd = (library_data*) this->method_data;
   
   // determine the byte size of the data type being sent
@@ -308,8 +303,7 @@ int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
     mdi_error("MDI data type not recognized in library_send");
   }
 
-  code* this_code = vector_get(&codes, current_code);
-  communicator* this = vector_get(this_code->comms, comm-1);
+  communicator* this = get_communicator(current_code, comm);
   library_data* libd = (library_data*) this->method_data;
 
   // determine the byte size of the data type being sent
@@ -324,9 +318,8 @@ int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
     datasize = sizeof(char);
   }
 
-  code* other_code = vector_get(&codes, libd->connected_code);
   MDI_Comm other_comm_handle = library_get_matching_handle(comm);
-  communicator* other_comm = vector_get(other_code->comms, other_comm_handle-1);
+  communicator* other_comm = get_communicator(libd->connected_code, other_comm_handle);
   library_data* other_lib = (library_data*) other_comm->method_data;
 
   // confirm that libd->buf is initialized

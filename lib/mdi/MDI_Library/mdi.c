@@ -663,7 +663,7 @@ int MDI_Register_Node(const char* node_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Node called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_node(this_code->nodes, node_name);
 }
 
@@ -762,7 +762,7 @@ int MDI_Register_Command(const char* node_name, const char* command_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Command called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_command(this_code->nodes, node_name, command_name);
 }
 
@@ -904,7 +904,7 @@ int MDI_Register_Callback(const char* node_name, const char* callback_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Callback called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_callback(this_code->nodes, node_name, callback_name);
 }
 
@@ -1042,7 +1042,7 @@ int MDI_Get_Callback(const char* node_name, int index, MDI_Comm comm, char* name
  *                   Function pointer to the generic execute_command function
  */
 int MDI_Set_Command_Func(int (*generic_command)(const char*, MDI_Comm)) {
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   this_code->execute_command = generic_command;
   return 0;
 }

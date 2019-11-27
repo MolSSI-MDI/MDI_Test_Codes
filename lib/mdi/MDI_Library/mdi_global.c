@@ -143,13 +143,14 @@ int get_callback_index(node* n, const char* callback_name) {
   return callback_index;
 }
 
+
 /*! \brief Create a new code structure and add it to the list of codes
  * Returns the index of the new code
  */
-
 int new_code() {
   code new_code;
   new_code.returned_comms = 0;
+  new_code.next_comm = 1;
 
   // initialize the node vector
   vector* node_vec = malloc(sizeof(vector));
@@ -162,6 +163,7 @@ int new_code() {
   new_code.comms = comms_vec;
 
   new_code.is_library = 0;
+  new_code.id = codes.size;
 
   // add the new code to the global vector of codes
   vector_push_back( &codes, &new_code );
@@ -169,6 +171,64 @@ int new_code() {
   // return the index of the new code
   return codes.size - 1;
 }
+
+
+/*! \brief Get a code from a code handle
+ * Returns a pointer to the code
+ */
+code* get_code(int code_id) {
+  // Search through all of the codes for the one that matches code_id
+  int icode;
+  for (icode = 0; icode < codes.size; icode++ ) {
+    code* this_code = vector_get(&codes, icode);
+    if ( this_code->id == code_id ) {
+      return this_code;
+    }
+  }
+  mdi_error("Code not found");
+
+}
+
+
+/*! \brief Create a new communicator structure and add it to the list of communicators
+ * Returns the handle of the new communicator
+ */
+int new_communicator(int code_id, int method) {
+  code* this_code = get_code(code_id);
+
+  communicator new_comm;
+  new_comm.method = method;
+  vector* node_vec = malloc(sizeof(vector));
+  vector_init(node_vec, sizeof(node));
+  new_comm.nodes = node_vec;
+  new_comm.id = this_code->next_comm;
+  new_comm.mdi_version = 0.0;
+  this_code->next_comm++;
+
+  vector_push_back( this_code->comms, &new_comm );
+
+  return new_comm.id;
+}
+
+
+/*! \brief Get a communicator from a communicator handle
+ * Returns a pointer to the communicator
+ */
+communicator* get_communicator(int code_id, MDI_Comm_Type comm_id) {
+  code* this_code = get_code(code_id);
+
+  // Search through all of the communicators for the one that matches comm_id
+  int icomm;
+  for (icomm = 0; icomm < this_code->comms->size; icomm++ ) {
+    communicator* comm = vector_get(this_code->comms, icomm);
+    if ( comm->id == comm_id ) {
+      return comm;
+    }
+  }
+  mdi_error("Communicator not found");
+
+}
+
 
 /*! \brief Print error message and exit
  *

@@ -26,6 +26,8 @@ typedef struct dynamic_array_struct {
 typedef struct communicator_struct {
   /*! \brief Communication method used by this communicator (either MDI_TCP or MDI_MPI) */
   int method;
+  /*! \brief MPI_Comm handle that corresponds to this communicator */
+  MPI_Comm id;
   /*! \brief For communicators using the TCP communicatiom method, the socket descriptor */
   int sockfd;
   /*! \brief For communicators using the MPI communicatiom method, the inter-code MPI 
@@ -56,15 +58,22 @@ typedef struct code_struct {
   char name[NAME_LENGTH];
   /*! \brief Role of the driver/engine */
   char role[NAME_LENGTH];
+  /*! \brief Handle for this code */
+  int id;
   /*! \brief The number of communicator handles that have been returned by MDI_Accept_Connection() */
   int returned_comms;
+  /*! \brief The handle of the next communicator */
+  int next_comm;
   /*! \brief Vector containing all nodes supported by this code */
   vector* nodes;
   /*! \brief Vector containing all communicators associated with this code */
   vector* comms;
   /*! \brief Function pointer to the generic execute_command_function */
   int (*execute_command)(const char*, MDI_Comm_Type);
-  /*! \brief Flag whether this code is being used as a library */
+  /*! \brief Flag whether this code is being used as a library
+  0: Not a library
+  1: Is an ENGINE library, but has not connected to the driver
+  2: Is an ENGINE library that has connected to the driver */
   int is_library;
 } code;
 
@@ -89,7 +98,11 @@ int get_node_index(vector* v, const char* node_name);
 int get_command_index(node* n, const char* command_name);
 int get_callback_index(node* n, const char* callback_name);
 
+
+int new_communicator(int code_id, int method);
+communicator* get_communicator(int code_id, MDI_Comm_Type comm_id);
 int new_code();
+code* get_code(int code_id);
 
 void mdi_error(const char* message);
 
