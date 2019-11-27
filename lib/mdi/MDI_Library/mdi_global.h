@@ -33,7 +33,7 @@ typedef struct communicator_struct {
   /*! \brief For communicators using the MPI communicatiom method, the inter-code MPI 
   communicator */
   MPI_Comm mpi_comm;
-  /*! \brief For communicators using the MPI communicatiom method, the rank of this 
+  /*! \brief For communicators using the MPI communication method, the rank of this 
   process within the inter-code MPI communicator */
   int mpi_rank;
   /*! \brief The MDI version of the connected code */
@@ -64,6 +64,8 @@ typedef struct code_struct {
   int returned_comms;
   /*! \brief The handle of the next communicator */
   int next_comm;
+  /*! \brief Rank of this process within its associated code */
+  int intra_rank;
   /*! \brief Vector containing all nodes supported by this code */
   vector* nodes;
   /*! \brief Vector containing all communicators associated with this code */

@@ -16,7 +16,7 @@
 MPI_Comm intra_MPI_comm = 0;
 
 /*! \brief Rank of this process within its associated code */
-int intra_rank = 0;
+//int intra_rank = 0;
 
 /*! \brief Order of this code within all codes represented by MPI_COMM_WORLD */
 int mpi_code_rank = 0;
@@ -149,13 +149,6 @@ int mpi_identify_codes(const char* code_name, int do_split, MPI_Comm world_comm)
 	communicator* new_comm = get_communicator(this_code->id, comm_id);
 	new_comm->mpi_comm = new_mpi_comm;
 	new_comm->mpi_rank = key;
-
-	// communicate the version number between codes
-	// only do this if not using i-PI compatibility mode
-	if ( ipi_compatibility != 1 ) {
-	  mpi_send(&MDI_VERSION, 1, MDI_DOUBLE, new_comm->id);
-	  mpi_recv(&new_comm->mdi_version, 1, MDI_DOUBLE, new_comm->id);
-	}
       }
     }
 
@@ -165,10 +158,23 @@ int mpi_identify_codes(const char* code_name, int do_split, MPI_Comm world_comm)
 
     // create the intra-code communicators
     MPI_Comm_split(world_comm, mpi_code_rank, world_rank, &intra_MPI_comm);
-    MPI_Comm_rank(intra_MPI_comm, &intra_rank);
+    MPI_Comm_rank(intra_MPI_comm, &this_code->intra_rank);
 
     MPI_Barrier(world_comm);
 
+  }
+
+  // communicate the version number between codes
+  int icomm;
+  for ( icomm = 0; icomm < this_code->comms->size; icomm++ ) {
+    communicator* this_comm = vector_get(this_code->comms, icomm);
+    if (this_comm->method == MDI_MPI) {
+      // only communicate the version number if not using i-PI compatibility mode
+      if ( ipi_compatibility != 1 ) {
+	mpi_send(&MDI_VERSION, 1, MDI_DOUBLE, this_comm->id);
+	mpi_recv(&this_comm->mdi_version, 1, MDI_DOUBLE, this_comm->id);
+      }
+    }
   }
 
   free( buffer );
@@ -210,6 +216,12 @@ int mpi_update_world_comm(void* world_comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int mpi_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
+  // only send from rank 0
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
+    return 0;
+  }
+
   communicator* this = get_communicator(current_code, comm);
 
   if (datatype == MDI_INT) {
@@ -241,6 +253,12 @@ int mpi_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
  *                   MDI communicator associated with the connection to the sending code.
  */
 int mpi_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
+  // only recv from rank 0
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
+    return 0;
+  }
+
   communicator* this = get_communicator(current_code, comm);
 
   if (datatype == MDI_INT) {

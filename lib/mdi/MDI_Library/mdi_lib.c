@@ -238,37 +238,42 @@ int library_execute_command(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
-
   if ( datatype != MDI_INT && datatype != MDI_DOUBLE && datatype != MDI_CHAR ) {
     mdi_error("MDI data type not recognized in library_send");
   }
 
+  code* this_code = get_code(current_code);
   communicator* this = get_communicator(current_code, comm);
   library_data* libd = (library_data*) this->method_data;
-  
-  // determine the byte size of the data type being sent
-  size_t datasize;
-  if (datatype == MDI_INT) {
-    datasize = sizeof(int);
-  }
-  else if (datatype == MDI_DOUBLE) {
-    datasize = sizeof(double);
-  }
-  else if (datatype == MDI_CHAR) {
-    datasize = sizeof(char);
-  }
 
-  // confirm that libd->buf is not already allocated
-  if ( libd->buf_allocated != 0 ) {
-    mdi_error("MDI recv buffer already allocated");
+  // only send from rank 0
+  if ( this_code->intra_rank == 0 ) {
+
+    // determine the byte size of the data type being sent
+    size_t datasize;
+    if (datatype == MDI_INT) {
+      datasize = sizeof(int);
+    }
+    else if (datatype == MDI_DOUBLE) {
+      datasize = sizeof(double);
+    }
+    else if (datatype == MDI_CHAR) {
+      datasize = sizeof(char);
+    }
+
+    // confirm that libd->buf is not already allocated
+    if ( libd->buf_allocated != 0 ) {
+      mdi_error("MDI recv buffer already allocated");
+    }
+
+    // allocate the memory required for the send
+    libd->buf = malloc( datasize * count );
+    libd->buf_allocated = 1;
+
+    // copy the contents of buf into libd->buf
+    memcpy(libd->buf, buf, datasize * count);
+
   }
-
-  // allocate the memory required for the send
-  libd->buf = malloc( datasize * count );
-  libd->buf_allocated = 1;
-
-  // copy the contents of buf into libd->buf
-  memcpy(libd->buf, buf, datasize * count);
 
   // check whether the recipient code should now execute its command
   if ( libd->execute_on_send == 1 ) {
@@ -295,6 +300,11 @@ int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm com
  *                   MDI communicator associated with the connection to the sending code.
  */
 int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
+  // only recv from rank 0
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
+    return 0;
+  }
 
   if ( datatype != MDI_INT && datatype != MDI_DOUBLE && datatype != MDI_CHAR ) {
     mdi_error("MDI data type not recognized in library_send");

@@ -184,8 +184,12 @@ int general_init(const char* options, void* world_comm) {
       MPI_Comm_rank(mpi_communicator, &mpi_rank);
     }
     else {
-      mpi_rank = 0;
+      // Python case
+      mpi_rank = world_rank;
     }
+    // for now, set the intra rank to the world rank
+    // if using MPI for communication, it may change this
+    this_code->intra_rank = mpi_rank;
   }
 
   // redirect the standard output
@@ -388,11 +392,6 @@ int general_accept_communicator() {
  *                   MDI communicator associated with the intended recipient code.
  */
 int general_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
-    mdi_error("Called MDI_Send with incorrect rank");
-  }
-
-  //communicator_send(buf, count, datatype, comm);
   communicator* this = get_communicator(current_code, comm);
 
   if ( this->method == MDI_MPI ) {
@@ -431,10 +430,6 @@ int general_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm com
  *                   MDI communicator associated with the connection to the sending code.
  */
 int general_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
-    mdi_error("Called MDI_Recv with incorrect rank");
-  }
-
   communicator* this = get_communicator(current_code, comm);
 
   if ( this->method == MDI_MPI ) {
@@ -469,10 +464,6 @@ int general_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int general_send_command(const char* buf, MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
-    mdi_error("Called MDI_Send_Command with incorrect rank");
-  }
-
   // ensure that the driver is the current code
   library_set_driver_current();
 
@@ -494,10 +485,6 @@ int general_send_command(const char* buf, MDI_Comm comm) {
     }
     else if ( command[0] == '>' ) {
       // flag the command to be executed after the next call to MDI_Send
-      /*
-      general_send( command, count, MDI_CHAR, comm );
-      ret = library_execute_command(comm);
-      */
       library_data* libd = (library_data*) this->method_data;
       libd->execute_on_send = 1;
     }
@@ -576,7 +563,8 @@ int general_builtin_command(const char* buf, MDI_Comm comm) {
  *                   MDI communicator associated with the connection to the sending code.
  */
 int general_recv_command(char* buf, MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Called MDI_Recv_Command with incorrect rank");
   }
   int count = MDI_COMMAND_LENGTH;
@@ -728,10 +716,10 @@ int register_callback(vector* node_vec, const char* node_name, const char* callb
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_command_list(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send command information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int ncommands = 0;
   int nnodes = this_code->nodes->size;
   int inode, icommand;
@@ -799,10 +787,10 @@ int send_command_list(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_callback_list(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send callback information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int ncallbacks = 0;
   int nnodes = this_code->nodes->size;
   int inode, icallback;
@@ -870,10 +858,10 @@ int send_callback_list(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_node_list(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send node information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int nnodes = this_code->nodes->size;
   int inode;
   int stride = MDI_COMMAND_LENGTH + 1;
@@ -910,10 +898,10 @@ int send_node_list(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_ncommands(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send command information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int ncommands = 0;
   int nnodes = this_code->nodes->size;
   int inode;
@@ -939,10 +927,10 @@ int send_ncommands(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_ncallbacks(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send callback information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int ncallbacks = 0;
   int nnodes = this_code->nodes->size;
   int inode;
@@ -968,10 +956,10 @@ int send_ncallbacks(MDI_Comm comm) {
  *                   MDI communicator associated with the intended recipient code.
  */
 int send_nnodes(MDI_Comm comm) {
-  if ( intra_rank != 0 ) {
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
     mdi_error("Attempting to send callback information from the incorrect rank");
   }
-  code* this_code = get_code(current_code);
   int nnodes = this_code->nodes->size;
   int ret = general_send( &nnodes, 1, MDI_INT, comm );
   return ret;

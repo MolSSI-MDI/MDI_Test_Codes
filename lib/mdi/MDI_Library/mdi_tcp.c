@@ -227,6 +227,12 @@ int tcp_accept_connection() {
  *                   MDI communicator associated with the intended recipient code.
  */
 int tcp_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
+  // only send from rank 0
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
+    return 0;
+  }
+
   int n = 0;
   communicator* this = get_communicator(current_code, comm);
   size_t count_t = count;
@@ -273,6 +279,12 @@ int tcp_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
  *                   MDI communicator associated with the connection to the sending code.
  */
 int tcp_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
+  // only recv from rank 0
+  code* this_code = get_code(current_code);
+  if ( this_code->intra_rank != 0 ) {
+    return 0;
+  }
+
   size_t n, nr;
   communicator* this = get_communicator(current_code, comm);
   size_t count_t = count;

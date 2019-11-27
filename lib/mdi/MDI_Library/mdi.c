@@ -628,7 +628,8 @@ int MDI_Get_MPI_Code_Rank()
  */
 void MDI_Set_MPI_Intra_Rank(int rank)
 {
-  intra_rank = rank;
+  code* this_code = get_code(current_code);
+  this_code->intra_rank = rank;
 }
 
 /*! \brief Set the size of MPI_COMM_WORLD
