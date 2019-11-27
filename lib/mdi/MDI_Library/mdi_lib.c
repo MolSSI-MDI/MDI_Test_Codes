@@ -246,8 +246,19 @@ int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm com
   communicator* this = get_communicator(current_code, comm);
   library_data* libd = (library_data*) this->method_data;
 
+  code* other_code = get_code(libd->connected_code);
+
+  // get the rank of this process on the engine
+  int engine_rank = 0;
+  if ( this_code->is_library ) {
+    engine_rank = this_code->intra_rank;
+  }
+  else {
+    engine_rank = other_code->intra_rank;
+  }
+
   // only send from rank 0
-  if ( this_code->intra_rank == 0 ) {
+  if ( engine_rank == 0 ) {
 
     // determine the byte size of the data type being sent
     size_t datasize;
@@ -300,18 +311,30 @@ int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm com
  *                   MDI communicator associated with the connection to the sending code.
  */
 int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
-  // only recv from rank 0
   code* this_code = get_code(current_code);
-  if ( this_code->intra_rank != 0 ) {
+  communicator* this = get_communicator(current_code, comm);
+  library_data* libd = (library_data*) this->method_data;
+
+  code* other_code = get_code(libd->connected_code);
+  MDI_Comm other_comm_handle = library_get_matching_handle(comm);
+  communicator* other_comm = get_communicator(libd->connected_code, other_comm_handle);
+  library_data* other_lib = (library_data*) other_comm->method_data;
+
+  // only recv from rank 0 of the engine
+  int engine_rank = 0;
+  if ( this_code->is_library ) {
+    engine_rank = this_code->intra_rank;
+  }
+  else {
+    engine_rank = other_code->intra_rank;
+  }
+  if ( engine_rank != 0 ) {
     return 0;
   }
 
   if ( datatype != MDI_INT && datatype != MDI_DOUBLE && datatype != MDI_CHAR ) {
     mdi_error("MDI data type not recognized in library_send");
   }
-
-  communicator* this = get_communicator(current_code, comm);
-  library_data* libd = (library_data*) this->method_data;
 
   // determine the byte size of the data type being sent
   size_t datasize;
@@ -324,10 +347,6 @@ int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
   else if (datatype == MDI_CHAR) {
     datasize = sizeof(char);
   }
-
-  MDI_Comm other_comm_handle = library_get_matching_handle(comm);
-  communicator* other_comm = get_communicator(libd->connected_code, other_comm_handle);
-  library_data* other_lib = (library_data*) other_comm->method_data;
 
   // confirm that libd->buf is initialized
   if ( other_lib->buf_allocated != 1 ) {
