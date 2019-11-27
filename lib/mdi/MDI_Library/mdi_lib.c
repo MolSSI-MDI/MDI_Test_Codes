@@ -63,7 +63,7 @@ int library_set_driver_current() {
  *
  */
 int library_accept_communicator() {
-  // ensure that the driver is the current code
+  // set the driver as the current code, if this is an ENGINE that is linked as a LIBRARY
   library_set_driver_current();
 
   // get the driver code
@@ -108,9 +108,6 @@ int library_accept_communicator() {
       libd->connected_code = engine_code->id;
     }
 
-  }
-  else {
-    mdi_error("MDI_Accept_Communicator error: When using LIBRARY method, engine called MDI_Accept_Communicator");
   }
 
   return 0;
