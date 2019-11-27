@@ -27,7 +27,7 @@ typedef struct communicator_struct {
   /*! \brief Communication method used by this communicator (either MDI_TCP or MDI_MPI) */
   int method;
   /*! \brief MPI_Comm handle that corresponds to this communicator */
-  MPI_Comm id;
+  MDI_Comm_Type id;
   /*! \brief For communicators using the TCP communicatiom method, the socket descriptor */
   int sockfd;
   /*! \brief For communicators using the MPI communicatiom method, the inter-code MPI 

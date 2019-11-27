@@ -1084,7 +1084,7 @@ int MDI_Initialize_New_Code() {
   if ( ! is_initialized ) {
     // initialized the codes vector
     vector_init(&codes, sizeof(code));
-    is_initialized == 1;
+    is_initialized = 1;
   }
   return new_code();
 }
