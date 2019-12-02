@@ -628,7 +628,8 @@ int MDI_Get_MPI_Code_Rank()
  */
 void MDI_Set_MPI_Intra_Rank(int rank)
 {
-  intra_rank = rank;
+  code* this_code = get_code(current_code);
+  this_code->intra_rank = rank;
 }
 
 /*! \brief Set the size of MPI_COMM_WORLD
@@ -663,7 +664,7 @@ int MDI_Register_Node(const char* node_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Node called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_node(this_code->nodes, node_name);
 }
 
@@ -762,7 +763,7 @@ int MDI_Register_Command(const char* node_name, const char* command_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Command called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_command(this_code->nodes, node_name, command_name);
 }
 
@@ -904,7 +905,7 @@ int MDI_Register_Callback(const char* node_name, const char* callback_name)
   if ( is_initialized == 0 ) {
     mdi_error("MDI_Register_Callback called but MDI has not been initialized");
   }
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   return register_callback(this_code->nodes, node_name, callback_name);
 }
 
@@ -1042,7 +1043,7 @@ int MDI_Get_Callback(const char* node_name, int index, MDI_Comm comm, char* name
  *                   Function pointer to the generic execute_command function
  */
 int MDI_Set_Command_Func(int (*generic_command)(const char*, MDI_Comm)) {
-  code* this_code = vector_get(&codes, current_code);
+  code* this_code = get_code(current_code);
   this_code->execute_command = generic_command;
   return 0;
 }
@@ -1080,6 +1081,11 @@ int MDI_Execute_Command(const char* command_name, void* buf, int count, MDI_Data
  *
  */
 int MDI_Initialize_New_Code() {
+  if ( ! is_initialized ) {
+    // initialized the codes vector
+    vector_init(&codes, sizeof(code));
+    is_initialized = 1;
+  }
   return new_code();
 }
 

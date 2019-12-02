@@ -282,15 +282,16 @@ class MPI4PYManager():
                 if mpi_rank == driver_rank or mpi_rank == irank:
                     self.communicators.append( MPI4PYCommunicator(MDI_MPI, new_mpi_comm, mpi_key) )
 
-                    # communicate the version number between codes
-                    if not ipi_compatibility:
-                        self.communicators[-1].exchange_version()
-
         # split the intra-code communicator
         mpi_color = self.mpi_code_rank
         self.intra_code_comm = mpi_comm.Split(mpi_color, mpi_rank)
         mdi.MDI_Set_MPI_Intra_Rank( self.intra_code_comm.Get_rank() )
         mpi_comm.Barrier()
+
+        # communicate the version number between codes
+        if not ipi_compatibility: 
+            for comm in self.communicators:
+                comm.exchange_version()
 
     def Accept_Communicator(self):
         if self.returned_comms < len(self.communicators):

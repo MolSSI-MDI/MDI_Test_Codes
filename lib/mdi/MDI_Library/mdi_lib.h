@@ -10,7 +10,7 @@
 #include "mdi_global.h"
 
 typedef struct library_data_struct {
-  /*! \brief Index of the code to which this communicator connects */
+  /*! \brief Handle of the code to which this communicator connects */
   int connected_code;
   /*! \brief Name of the next command to be executed on this code.
   This is only used by engines. */
