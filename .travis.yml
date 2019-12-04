@@ -7,11 +7,13 @@ matrix:
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
+        - sudo pip install -U pytest
     - os: linux
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
         - sudo apt-get install mpich
+        - sudo pip install -U pytest
     - os: linux
       compiler: gcc
       before_install:
@@ -33,10 +35,12 @@ matrix:
         - brew update > /dev/null
         - brew install gcc > /dev/null
         - export FC=gfortran
+        - sudo pip install -U pytest
     - os: windows
       compiler: gcc
       before_install:
-           # remove the sh.exe file, which prevents MinGW from working
+         - pip install -U pytest
+         # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
          - powershell -command "cat sh_loc.txt | rm"
       install:
