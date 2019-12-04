@@ -40,7 +40,8 @@ matrix:
     - os: windows
       compiler: gcc
       before_install:
-         - pip install -U pytest
+         - (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
+         - ls
          # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
          - powershell -command "cat sh_loc.txt | rm"
@@ -58,8 +59,9 @@ matrix:
 install:
   - mkdir build
   - cd build
-  - cmake ../
+  - cmake -Dpython_package ../
   - make VERBOSE=1
+  - make install
 
 script:
   - ls
