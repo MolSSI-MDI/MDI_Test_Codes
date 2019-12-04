@@ -28,7 +28,7 @@ matrix:
         # Run all the tests
         - cd ../tests
         - pytest -k "lib"
-        - pytest -l "mpi"
+        - pytest -k "mpi"
         - cd ../build
     - os: osx
       compiler: gcc
