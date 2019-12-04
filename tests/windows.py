@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 build_dir = "../build"
 
@@ -47,3 +48,15 @@ wait
 mkdir BBB4_dir'''
 ierr = os.system(command)
 print("Error code: " + str(ierr))
+
+
+print("Doing subprocess")
+command = '''mkdir BBB1_dir
+driver_cxx.exe -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
+mkdir BBB2_dir
+engine_cxx.exe -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
+mkdir BBB3_dir
+wait
+mkdir BBB4_dir'''
+result = subprocess.check_output(command, shell=True)
+print("End of subprocess: " + str(result))
