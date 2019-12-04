@@ -62,6 +62,8 @@ matrix:
          - cd ../tests
          - cp ../build/driver_cxx.exe .
          - cp ../build/engine_cxx.exe .
+         - cp ../build/libmdi.dll .
+         - cp ../build/libmdi.dll.a .
          - ls
          - python windows.py
          - ls
