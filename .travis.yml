@@ -40,7 +40,7 @@ matrix:
     - os: windows
       compiler: gcc
       before_install:
-         - (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
+         - powershell (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
          - ls
          # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
@@ -93,13 +93,5 @@ script:
   - ../tests/py-py_tcp.sh
 
   - cd ../tests
-  - pytest test_mdi.py::test_cxx_cxx_tcp
-  - pytest test_mdi.py::test_cxx_f90_tcp
-  - pytest test_mdi.py::test_cxx_py_tcp
-  - pytest test_mdi.py::test_f90_cxx_tcp
-  - pytest test_mdi.py::test_f90_f90_tcp
-  - pytest test_mdi.py::test_f90_py_tcp
-  - pytest test_mdi.py::test_py_cxx_tcp
-  - pytest test_mdi.py::test_py_f90_tcp
-  - pytest test_mdi.py::test_py_py_tcp
+  - pytest -k "tcp"
   - cd ../build
