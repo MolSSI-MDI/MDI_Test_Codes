@@ -30,6 +30,8 @@ set_target_properties(engine_lib_cxx PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
+target_link_libraries(engine_lib_cxx mdi
+                      ${MPI_LIBRARIES})
 
 # Copy the engine header file into the binary directory
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/engine_lib_cxx.h ${CMAKE_BINARY_DIR}/engine_lib_cxx.h COPYONLY)
