@@ -27,7 +27,8 @@ matrix:
       before_script:
         # Run all the tests
         - cd ../tests
-        - pytest
+        - pytest -k "lib"
+        - pytest -l "mpi"
         - cd ../build
     - os: osx
       compiler: gcc
@@ -91,5 +92,13 @@ script:
   - ../tests/py-py_tcp.sh
 
   - cd ../tests
-  - pytest -k "tcp"
+  - pytest test_mdi.py::test_cxx_cxx_tcp
+  - pytest test_mdi.py::test_cxx_f90_tcp
+  - pytest test_mdi.py::test_cxx_py_tcp
+  - pytest test_mdi.py::test_f90_cxx_tcp
+  - pytest test_mdi.py::test_f90_f90_tcp
+  - pytest test_mdi.py::test_f90_py_tcp
+  - pytest test_mdi.py::test_py_cxx_tcp
+  - pytest test_mdi.py::test_py_f90_tcp
+  - pytest test_mdi.py::test_py_py_tcp
   - cd ../build
