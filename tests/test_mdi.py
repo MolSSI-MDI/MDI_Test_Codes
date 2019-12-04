@@ -178,7 +178,7 @@ mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -meth
 
 def test_cxx_cxx_tcp():
     command = "cd " + build_dir + '''
-./$(find driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" > output &
+./$(find driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
 ./$(find engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
 wait'''
 

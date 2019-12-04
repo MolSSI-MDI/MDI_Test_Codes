@@ -41,11 +41,11 @@ matrix:
       compiler: gcc
       env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
       before_install:
+         # install pytest
          - choco install python --version 3.6.8
          - python -m pip install --upgrade pip
          - pip install -U pytest
-         #- powershell (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
-         #- ls
+
          # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
          - powershell -command "cat sh_loc.txt | rm"
@@ -58,6 +58,14 @@ matrix:
          # Copy the .dll files into the binary directory
          - cp lib/mdi/MDI_Library/*.dll* .
          - cp MDI_Test_Codes/STUBS_MPI/*.dll* .
+
+         - cd ../tests
+         - ls
+         - python windows.py
+         - ls
+         - ls ../build
+         - cat ../build/output
+         - cd ../build
 
 
 install:
