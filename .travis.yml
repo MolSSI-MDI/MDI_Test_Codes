@@ -19,6 +19,7 @@ matrix:
         - sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
         - sudo pip install mpi4py
         - sudo pip install numpy
+        - sudo pip install -U pytest
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
       before_script:
@@ -48,6 +49,10 @@ matrix:
 
         # Run a Python-Python test calculation using MPI
         - ../tests/py-py_mpi.sh
+
+        - cd ../tests
+        - pytest -k "mpi"
+        - cd ../build
     - os: osx
       compiler: gcc
       before_install:
