@@ -23,35 +23,9 @@ matrix:
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
       before_script:
-        # Run a CXX-CXX test calculation using MPI
-        - ../tests/cxx-cxx_mpi.sh
-
-        # Run a CXX-Fortran test calculation using MPI
-        #- ../tests/cxx-f90_mpi.sh
-
-        # Run a CXX-Python test calculation using MPI
-        - ../tests/cxx-py_mpi.sh
-
-        # Run a Fortran-CXX test calculation using MPI
-        #- ../tests/f90-cxx_mpi.sh
-
-        # Run a Fortran-Fortran test calculation using MPI
-        #- ../tests/f90-f90_mpi.sh
-
-        # Run a Fortran-Python test calculation using MPI
-        #- ../tests/f90-py_mpi.sh
-
-        # Run a Python-CXX test calculation using MPI
-        - ../tests/py-cxx_mpi.sh
-
-        # Run a Python-Fortran test calculation using MPI
-        #- ../tests/py-f90_mpi.sh
-
-        # Run a Python-Python test calculation using MPI
-        - ../tests/py-py_mpi.sh
-
+        # Run all the tests
         - cd ../tests
-        - pytest -k "mpi"
+        - pytest
         - cd ../build
     - os: osx
       compiler: gcc
@@ -111,3 +85,7 @@ script:
 
   # Run a Python-Python test calculation using TCP/IP
   - ../tests/py-py_tcp.sh
+
+  - cd ../tests
+  - pytest -k "tcp"
+  - cd ../build
