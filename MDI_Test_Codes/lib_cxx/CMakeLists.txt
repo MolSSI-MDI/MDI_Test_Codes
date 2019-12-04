@@ -23,7 +23,7 @@ include_directories( ${CMAKE_BINARY_DIR} )
 # Engine
 
 # Compile the engine library
-add_library(engine_lib_cxx
+add_library(engine_lib_cxx SHARED
             engine_lib_cxx.h
             engine_lib_cxx.cpp)
 set_target_properties(engine_lib_cxx PROPERTIES
@@ -35,6 +35,18 @@ target_link_libraries(engine_lib_cxx mdi
 
 # Copy the engine header file into the binary directory
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/engine_lib_cxx.h ${CMAKE_BINARY_DIR}/engine_lib_cxx.h COPYONLY)
+
+if(NOT MPI_FOUND)
+   target_include_directories(engine_lib_cxx PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../STUBS_MPI/)
+endif()
+if(MPI_COMPILE_FLAGS)
+   set_target_properties(engine_lib_cxx PROPERTIES
+      COMPILE_FLAGS "${MPI_COMPILE_FLAGS}")
+endif()
+if(MPI_LINK_FLAGS)
+   set_target_properties(engine_lib_cxx PROPERTIES
+      LINK_FLAGS "${MPI_LINK_FLAGS}")
+endif()
 
 
 # ----------------------------------------------------------------------------------------------------
