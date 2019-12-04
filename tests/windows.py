@@ -31,3 +31,7 @@ command = '''./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -me
 wait'''
 cmd_return = os.system( command )
 print("After no redirect")
+
+print("Mkdir")
+command = '''mkdir BBBBB_dir'''
+os.system(command)

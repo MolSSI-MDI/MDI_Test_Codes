@@ -63,6 +63,7 @@ matrix:
          - ls
          - python windows.py
          - ls
+         - pwd
          - ls ../build
          - cat ../build/output
          - cd ../build
