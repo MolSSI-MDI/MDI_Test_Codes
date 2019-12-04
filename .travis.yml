@@ -39,9 +39,13 @@ matrix:
         - sudo pip install -U pytest
     - os: windows
       compiler: gcc
+      env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
       before_install:
-         - powershell (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
-         - ls
+         - choco install python --version 3.6.8
+         - python -m pip install --upgrade pip
+         - pip install -U pytest
+         #- powershell (new-object System.Net.WebClient).DownloadFile('https://bootstrap.pypa.io/get-pip.py','get-pip.py')
+         #- ls
          # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
          - powershell -command "cat sh_loc.txt | rm"
@@ -63,35 +67,5 @@ install:
   - make VERBOSE=1
 
 script:
-  - ls
-
-  # Run a CXX-CXX test calculation using TCP/IP
-  - ../tests/cxx-cxx_tcp.sh
-
-  # Run a CXX-Fortran test calculation using TCP/IP
-  - ../tests/cxx-f90_tcp.sh
-
-  # Run a CXX-Python test calculation using TCP/IP
-  - ../tests/cxx-py_tcp.sh
-
-  # Run a Fortran-CXX test calculation using TCP/IP
-  - ../tests/f90-cxx_tcp.sh
-
-  # Run a Fortran-Fortran test calculation using TCP/IP
-  - ../tests/f90-f90_tcp.sh
-
-  # Run a Fortran-Python test calculation using TCP/IP
-  - ../tests/f90-py_tcp.sh
-
-  # Run a Python-CXX test calculation using TCP/IP
-  - ../tests/py-cxx_tcp.sh
-
-  # Run a Python-Fortran test calculation using TCP/IP
-  - ../tests/py-f90_tcp.sh
-
-  # Run a Python-Python test calculation using TCP/IP
-  - ../tests/py-py_tcp.sh
-
   - cd ../tests
   - pytest -k "tcp"
-  - cd ../build
