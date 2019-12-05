@@ -55,5 +55,6 @@ print("Doing subprocess")
 command = ( "ls;" + 
             "pwd" )
 #result = subprocess.check_output(command, shell=True)
-result = subprocess.check_output(["cmd.exe","pwd"])
+#result = subprocess.check_output(["cmd.exe","pwd"])
+result = subprocess.check_output(["ls","."])
 print("End of subprocess: " + str(result))

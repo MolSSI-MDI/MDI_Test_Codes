@@ -59,7 +59,7 @@ def test_cxx_cxx_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
