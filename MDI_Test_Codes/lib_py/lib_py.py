@@ -86,8 +86,6 @@ class MDIEngine:
 # Driver code
 ######################################################################
 
-print("Start of driver")
-
 mpi_world.Barrier()
 
 # Initialize the MDI Library
@@ -98,6 +96,7 @@ if use_mpi4py:
     world_size = mpi_world.Get_size()
 else:
     world_rank = 0
+print("Start of driver")
 
 # Split the communicator into individual tasks
 color = 0

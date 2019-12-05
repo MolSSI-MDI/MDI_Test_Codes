@@ -7,57 +7,47 @@ matrix:
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
+        - sudo pip install -U pytest
     - os: linux
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
         - sudo apt-get install mpich
+        - sudo pip install -U pytest
     - os: linux
       compiler: gcc
+      env: OMPI_MCA_btl_base_warn_component_unused=0
       before_install:
         - sudo apt-get install gfortran
         - sudo apt-get install openmpi-bin openmpi-doc libopenmpi-dev
         - sudo pip install mpi4py
         - sudo pip install numpy
+        - sudo pip install -U pytest
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
       before_script:
-        # Run a CXX-CXX test calculation using MPI
-        - ../tests/cxx-cxx_mpi.sh
-
-        # Run a CXX-Fortran test calculation using MPI
-        #- ../tests/cxx-f90_mpi.sh
-
-        # Run a CXX-Python test calculation using MPI
-        - ../tests/cxx-py_mpi.sh
-
-        # Run a Fortran-CXX test calculation using MPI
-        #- ../tests/f90-cxx_mpi.sh
-
-        # Run a Fortran-Fortran test calculation using MPI
-        #- ../tests/f90-f90_mpi.sh
-
-        # Run a Fortran-Python test calculation using MPI
-        #- ../tests/f90-py_mpi.sh
-
-        # Run a Python-CXX test calculation using MPI
-        - ../tests/py-cxx_mpi.sh
-
-        # Run a Python-Fortran test calculation using MPI
-        #- ../tests/py-f90_mpi.sh
-
-        # Run a Python-Python test calculation using MPI
-        - ../tests/py-py_mpi.sh
+        # Run all the tests
+        - cd ../tests
+        - pytest -k "mpi"
+        - pytest -k "lib"
+        - cd ../build
     - os: osx
       compiler: gcc
       before_install:
         - brew update > /dev/null
         - brew install gcc > /dev/null
         - export FC=gfortran
+        - sudo pip install -U pytest
     - os: windows
       compiler: gcc
+      env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
       before_install:
-           # remove the sh.exe file, which prevents MinGW from working
+         # install pytest
+         - choco install python --version 3.6.8
+         - python -m pip install --upgrade pip
+         - pip install -U pytest
+
+         # remove the sh.exe file, which prevents MinGW from working
          - where sh > sh_loc.txt
          - powershell -command "cat sh_loc.txt | rm"
       install:
@@ -70,39 +60,12 @@ matrix:
          - cp lib/mdi/MDI_Library/*.dll* .
          - cp MDI_Test_Codes/STUBS_MPI/*.dll* .
 
-
 install:
   - mkdir build
   - cd build
-  - cmake ../
+  - cmake ..
   - make VERBOSE=1
 
 script:
-  - ls
-
-  # Run a CXX-CXX test calculation using TCP/IP
-  - ../tests/cxx-cxx_tcp.sh
-
-  # Run a CXX-Fortran test calculation using TCP/IP
-  - ../tests/cxx-f90_tcp.sh
-
-  # Run a CXX-Python test calculation using TCP/IP
-  - ../tests/cxx-py_tcp.sh
-
-  # Run a Fortran-CXX test calculation using TCP/IP
-  - ../tests/f90-cxx_tcp.sh
-
-  # Run a Fortran-Fortran test calculation using TCP/IP
-  - ../tests/f90-f90_tcp.sh
-
-  # Run a Fortran-Python test calculation using TCP/IP
-  - ../tests/f90-py_tcp.sh
-
-  # Run a Python-CXX test calculation using TCP/IP
-  - ../tests/py-cxx_tcp.sh
-
-  # Run a Python-Fortran test calculation using TCP/IP
-  - ../tests/py-f90_tcp.sh
-
-  # Run a Python-Python test calculation using TCP/IP
-  - ../tests/py-py_tcp.sh
+  - cd ../tests
+  - pytest -k "tcp"

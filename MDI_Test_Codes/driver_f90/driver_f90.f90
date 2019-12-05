@@ -58,7 +58,7 @@ IMPLICIT NONE
    call MDI_Send_Command("<NAME", comm, ierr)
    call MDI_Recv(message, MDI_NAME_LENGTH, MDI_CHAR, comm, ierr)
 
-   WRITE(6,*)'Engine name: ', message
+   WRITE(6,*)'Engine name: ', TRIM(message)
 
    call MDI_Send_Command("EXIT", comm, ierr)
 

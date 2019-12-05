@@ -79,8 +79,6 @@ PROGRAM ENGINE_F90
 
        INTEGER :: natoms
 
-       WRITE(6,*)'IN EXECUTE_COMMAND'
-
        SELECT CASE( TRIM(command) )
        CASE( "EXIT" )
           terminate_flag = .true.

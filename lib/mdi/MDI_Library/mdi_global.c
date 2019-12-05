@@ -187,7 +187,7 @@ code* get_code(int code_id) {
     }
   }
   mdi_error("Code not found");
-
+  return NULL;
 }
 
 
@@ -227,7 +227,7 @@ communicator* get_communicator(int code_id, MDI_Comm_Type comm_id) {
     }
   }
   mdi_error("Communicator not found");
-
+  return NULL;
 }
 
 
