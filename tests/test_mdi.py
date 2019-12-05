@@ -54,7 +54,7 @@ def test_cxx_cxx_mpi():
 
     command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
     cmd_return = os.system( command )
-    assert cmd_return == 1
+    assert cmd_return == 0
     #try:
     #    command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
     #    cmd_return = os.system( command )
