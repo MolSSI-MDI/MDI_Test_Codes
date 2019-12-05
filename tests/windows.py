@@ -41,9 +41,9 @@ print("Error code: " + str(cmd_return))
 print("Mkdir")
 command = ( "mkdir BBB1_dir;" + 
             "mkdir BBB11_dir;" + 
-            "driver_cxx.exe -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &;" +
+            "./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &;" +
             "mkdir BBB2_dir;" +
-            "engine_cxx.exe -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &;" + 
+            "./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &;" + 
             "mkdir BBB3_dir;" +
             "wait;" +
             "mkdir BBB4_dir" )
@@ -52,12 +52,13 @@ print("Error code: " + str(ierr))
 
 
 print("Doing subprocess")
-command = '''mkdir CCC1_dir
-driver_cxx.exe -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-mkdir CCC2_dir
-engine_cxx.exe -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-mkdir CCC3_dir
-wait
-mkdir CCC4_dir'''
+command = ( "mkdir CCC1_dir;" + 
+            "mkdir CCC11_dir;" + 
+            "./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &;" +
+            "mkdir CCC2_dir;" +
+            "./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &;" + 
+            "mkdir CCC3_dir;" +
+            "wait;" +
+            "mkdir CCC4_dir" )
 result = subprocess.check_output(command, shell=True)
 print("End of subprocess: " + str(result))

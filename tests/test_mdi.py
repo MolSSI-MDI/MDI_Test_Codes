@@ -46,7 +46,7 @@ NATOMS: 123
 
 def test_cxx_cxx_mpi():
     command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+mpiexec --mca btl_base_warn_component_unused 0 -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
     cmd_return = os.system( command )
