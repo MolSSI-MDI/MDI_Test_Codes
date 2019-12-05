@@ -85,8 +85,8 @@ class MDIEngine:
 ######################################################################
 # Driver code
 ######################################################################
-
-mpi_world.Barrier()
+if use_mpi4py:
+    mpi_world.Barrier()
 
 # Initialize the MDI Library
 mdi.MDI_Init(sys.argv[2],mpi_world)
@@ -96,6 +96,7 @@ if use_mpi4py:
     world_size = mpi_world.Get_size()
 else:
     world_rank = 0
+    world_size = 0
 print("Start of driver")
 
 # Split the communicator into individual tasks
@@ -103,8 +104,12 @@ color = 0
 key = world_rank
 if world_rank < world_size//2:
     color = 1
-mpi_task_comm = mpi_world.Split(color, key)
-task_rank = mpi_task_comm.Get_rank()
+if use_mpi4py:
+    mpi_task_comm = mpi_world.Split(color, key)
+    task_rank = mpi_task_comm.Get_rank()
+else:
+    mpi_task_comm = None
+    task_rank = 0
 # Check if this connection uses the LIBRARY method
 #method = MDI_Get_Method(comm)
 method = mdi.MDI_LIB
@@ -132,5 +137,5 @@ print("NATOMS: " + str(natoms))
 #mdi.MDI_Send_Command("<NAME", comm)
 #engine_name = mdi.MDI_Recv(mdi.MDI_NAME_LENGTH, mdi.MDI_CHAR, comm)
 #print("NAME: " + str(engine_name))
-
-mpi_world.Barrier()
+if use_mpi4py:
+    mpi_world.Barrier()

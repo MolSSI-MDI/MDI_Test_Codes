@@ -12,8 +12,13 @@ matrix:
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
-        - sudo apt-get install mpich
+        - sudo apt-get install mpich libmpich-dev
+        - sudo pip install mpi4py
+        - sudo pip install numpy
         - sudo pip install -U pytest
+      before_script:
+        - cd ../tests
+        - pytest -k "mpi"
     - os: linux
       compiler: gcc
       env: OMPI_MCA_btl_base_warn_component_unused=0
@@ -26,11 +31,9 @@ matrix:
         - ls /usr/lib/openmpi/
         - ls /usr/lib/openmpi/lib/
       before_script:
-        # Run all the tests
+        # Run the mdi tests
         - cd ../tests
         - pytest -k "mpi"
-        - pytest -k "lib"
-        - cd ../build
     - os: osx
       compiler: gcc
       before_install:
@@ -68,4 +71,5 @@ install:
 
 script:
   - cd ../tests
+  - pytest -k "lib"
   - pytest -k "tcp"
