@@ -96,6 +96,7 @@ if use_mpi4py:
     world_size = mpi_world.Get_size()
 else:
     world_rank = 0
+    world_size = 0
 print("Start of driver")
 
 # Split the communicator into individual tasks
