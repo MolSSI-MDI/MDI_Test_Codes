@@ -273,7 +273,8 @@ def test_cxx_py_tcp():
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
                                    stdout=subprocess.PIPE)
-    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"], 
+                                   cwd=build_dir)
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
@@ -323,7 +324,8 @@ def test_f90_py_tcp():
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
                                    stdout=subprocess.PIPE)
-    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"],
+                                   cwd=build_dir)
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
@@ -338,7 +340,7 @@ def test_py_cxx_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, cwd=build_dir)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
@@ -354,7 +356,7 @@ def test_py_f90_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, cwd=build_dir)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
@@ -367,8 +369,9 @@ def test_py_f90_tcp():
 def test_py_py_tcp():
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
-    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+                                   stdout=subprocess.PIPE, cwd=build_dir)
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"],
+                                   cwd=build_dir)
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
