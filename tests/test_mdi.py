@@ -42,7 +42,7 @@ def test_cxx_cxx_lib():
 
     except AssertionError: # MCA case
         # run the calculation
-        driver_proc = subprocess.Popen(["mpiexec","--mca btl_base_warn_component_unused","0","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+        driver_proc = subprocess.Popen(["mpiexec","--mca","btl_base_warn_component_unused","0","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         driver_tup = driver_proc.communicate()
 
