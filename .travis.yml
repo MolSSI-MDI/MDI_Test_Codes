@@ -12,7 +12,7 @@ matrix:
       compiler: gcc
       before_install:
         - sudo apt-get install gfortran
-        - sudo apt-get install mpich
+        - sudo apt-get install mpich libmpich-dev
         - sudo pip install -U pytest
     - os: linux
       compiler: gcc
