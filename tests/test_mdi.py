@@ -78,7 +78,7 @@ def test_cxx_f90_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -97,7 +97,7 @@ def test_cxx_py_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -116,7 +116,7 @@ def test_f90_cxx_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -135,7 +135,7 @@ def test_f90_f90_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -154,7 +154,7 @@ def test_f90_py_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -173,7 +173,7 @@ def test_py_cxx_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -192,7 +192,7 @@ def test_py_f90_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -211,7 +211,7 @@ def test_py_py_mpi():
     except AssertionError: # MCA
         command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
         cmd_return = os.system( command )
-        assert cmd_return == 0
+        assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
