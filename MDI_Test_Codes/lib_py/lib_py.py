@@ -132,5 +132,5 @@ print("NATOMS: " + str(natoms))
 #mdi.MDI_Send_Command("<NAME", comm)
 #engine_name = mdi.MDI_Recv(mdi.MDI_NAME_LENGTH, mdi.MDI_CHAR, comm)
 #print("NAME: " + str(engine_name))
-
-mpi_world.Barrier()
+if use_mpi4py:
+    mpi_world.Barrier()
