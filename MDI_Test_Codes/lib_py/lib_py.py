@@ -85,8 +85,8 @@ class MDIEngine:
 ######################################################################
 # Driver code
 ######################################################################
-
-mpi_world.Barrier()
+if use_mpi4py:
+    mpi_world.Barrier()
 
 # Initialize the MDI Library
 mdi.MDI_Init(sys.argv[2],mpi_world)
