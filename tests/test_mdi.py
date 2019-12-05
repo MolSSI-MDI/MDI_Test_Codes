@@ -5,6 +5,8 @@ import subprocess
 
 build_dir = "../build"
 
+sys.path.append(build_dir) 
+
 # Includes flags to prevent warning messages
 mpiexec_general = "mpiexec "
 mpiexec_mca = "mpiexec --mca btl_base_warn_component_unused 0 "
@@ -14,28 +16,27 @@ mpiexec_mca = "mpiexec --mca btl_base_warn_component_unused 0 "
 ##########################
 
 def test_cxx_cxx_lib():
-    command = "cd " + build_dir + '''
-./$(find driver_lib_cxx*) -mdi \"-role DRIVER -name driver -method LIBRARY -out output\" '''
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_lib_cxx*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                   stdout=subprocess.PIPE)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_py_lib():
-    command = "cd " + build_dir + '''
-python ../build/lib_py.py -mdi \"-role DRIVER -name driver -method LIBRARY -out output\" '''
+    # run the calculation
+    driver_proc = subprocess.Popen([sys.executable, "../build/lib_py.py", "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                   stdout=subprocess.PIPE)
+    driver_tup = driver_proc.communicate()
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
-
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
     expected = '''Start of driver
 Setting generic command
@@ -43,7 +44,7 @@ SUCCESS
 NATOMS: 123
 '''
 
-    assert output == expected
+    assert driver_out == expected
 
 
 
