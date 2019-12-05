@@ -84,7 +84,8 @@ def test_cxx_cxx_mpi():
     engine_name = glob.glob("../build/engine_cxx*")[0]
 
     # run the calculation
-    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+    #driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+    driver_proc = subprocess.Popen(["mpiexec","--mca","btl_base_warn_component_unused","0","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
                                     "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
     driver_tup = driver_proc.communicate()
