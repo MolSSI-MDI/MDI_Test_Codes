@@ -70,7 +70,6 @@ def test_cxx_cxx_mpi():
     engine_name = glob.glob("../build/engine_cxx*")[0]
 
     # run the calculation
-    #driver_proc = subprocess.Popen(["mpiexec","--mca","btl_base_warn_component_unused","0","-n","1",driver_name, "-mdi", "-role DRIVER -name driver
     driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
                                     "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
@@ -84,151 +83,140 @@ def test_cxx_cxx_mpi():
     assert driver_err == ""
 
 def test_cxx_f90_mpi():
-    command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_cxx*")[0]
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_cxx_py_mpi():
-    command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_cxx*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",sys.executable,"engine_py.py","-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_f90_cxx_mpi():
-    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"''' 
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
+    engine_name = glob.glob("../build/engine_cxx*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_f90_f90_mpi():
-    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_f90_py_mpi():
-    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",sys.executable,"engine_py.py","-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_py_cxx_mpi():
-    command_suffix = '''-n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the name of the engine code, which includes a .exe extension on Windows
+    engine_name = glob.glob("../build/engine_cxx*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",sys.executable,"driver_py.py", "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_py_f90_mpi():
-    command_suffix = '''mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # get the name of the engine code, which includes a .exe extension on Windows
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",sys.executable,"driver_py.py", "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",engine_name,"-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_py_py_mpi():
-    command_suffix = '''-n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","1",sys.executable,"driver_py.py", "-mdi", "-role DRIVER -name driver -method MPI",":",
+                                    "-n","1",sys.executable,"engine_py.py","-mdi","-role ENGINE -name MM -method MPI"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
-
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 
 

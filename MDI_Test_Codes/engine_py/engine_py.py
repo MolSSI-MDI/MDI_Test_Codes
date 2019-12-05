@@ -23,8 +23,6 @@ exit_flag = False
 
 def execute_command(command, comm):
     global exit_flag
-    print("IN EXECUTE COMMAND")
-    print("   COMMAND: " + str(command))
 
     if command == "EXIT":
         exit_flag = True
