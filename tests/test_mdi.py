@@ -56,7 +56,7 @@ def test_cxx_cxx_lib():
 def test_py_py_lib():
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/lib_py.py", "-mdi", "-role DRIVER -name driver -method LIBRARY"],
-                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
     driver_tup = driver_proc.communicate()
 
     # convert the driver's output into a string
@@ -93,8 +93,8 @@ def test_cxx_cxx_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
+    assert driver_err == ""
 
 def test_cxx_f90_mpi():
     command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
