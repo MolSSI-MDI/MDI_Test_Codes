@@ -11,6 +11,14 @@ sys.path.append(build_dir)
 mpiexec_general = "mpiexec "
 mpiexec_mca = "mpiexec --mca btl_base_warn_component_unused 0 "
 
+def format_return(input_string):
+    my_string = input_string.decode('utf-8')
+
+    # remove any \r special characters, which sometimes are added on Windows
+    my_string = my_string.replace('\r','')
+
+    return my_string
+
 ##########################
 # LIBRARY Method         #
 ##########################
@@ -26,24 +34,24 @@ def test_cxx_cxx_lib():
         driver_tup = driver_proc.communicate()
 
         # convert the driver's output into a string
-        driver_out = driver_tup[0].decode('utf-8')
-        driver_err = driver_tup[1].decode('utf-8')
+        driver_out = format_return(driver_tup[0])
+        driver_err = format_return(driver_tup[1])
 
         assert driver_err == ""
+        assert driver_out == " Engine name: MM\n"
 
     except AssertionError: # MCA case
         # run the calculation
-        driver_proc = subprocess.Popen(["mpiexec","--mca btl_base_warn_component_unused","0",driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+        driver_proc = subprocess.Popen(["mpiexec","--mca btl_base_warn_component_unused","0","-n","1",driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         driver_tup = driver_proc.communicate()
 
         # convert the driver's output into a string
-        driver_out = driver_tup[0].decode('utf-8')
-        driver_err = driver_tup[1].decode('utf-8')
+        driver_out = format_return(driver_tup[0])
+        driver_err = format_return(driver_tup[1])
 
         assert driver_err == ""
-
-    assert driver_out == " Engine name: MM\n"
+        assert driver_out == " Engine name: MM\n"
 
 def test_py_py_lib():
     # run the calculation
@@ -52,8 +60,8 @@ def test_py_py_lib():
     driver_tup = driver_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     expected = '''Start of driver
 Setting generic command
@@ -263,8 +271,8 @@ def test_cxx_cxx_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -282,8 +290,8 @@ def test_cxx_f90_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -301,8 +309,8 @@ def test_cxx_py_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -320,8 +328,8 @@ def test_f90_cxx_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -339,8 +347,8 @@ def test_f90_f90_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -358,8 +366,8 @@ def test_f90_py_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -376,8 +384,8 @@ def test_py_cxx_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -394,8 +402,8 @@ def test_py_f90_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
@@ -410,8 +418,8 @@ def test_py_py_tcp():
     engine_proc.communicate()
 
     # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
-    driver_err = driver_tup[1].decode('utf-8')
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
 
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
