@@ -50,7 +50,7 @@ mpiexec --mca btl_base_warn_component_unused 0 -n 1 ./$(find ../build/driver_cxx
     -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
     cmd_return = os.system( command )
-    #assert cmd_return == 0
+    assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
