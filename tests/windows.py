@@ -60,5 +60,7 @@ command = ( "mkdir CCC1_dir;" +
             "mkdir CCC3_dir;" +
             "wait;" +
             "mkdir CCC4_dir" )
-#result = subprocess.check_output(command, shell=True)
-#print("End of subprocess: " + str(result))
+command = ( "ls;" + 
+            "pwd" )
+result = subprocess.check_output(command, shell=True)
+print("End of subprocess: " + str(result))
