@@ -1,4 +1,6 @@
 import os
+import glob
+import subprocess
 
 build_dir = "../build"
 
@@ -229,34 +231,36 @@ def test_py_py_mpi():
 ##########################
 
 def test_cxx_cxx_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    driver_name = glob.glob("../build/driver_cxx*")[0]
+    engine_name = glob.glob("../build/engine_cxx*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    assert output == " Engine name: MM\n"
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
+
+    assert driver_out == " Engine name: MM\n"
 
 def test_cxx_f90_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_f90*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    driver_name = glob.glob("../build/driver_cxx*")[0]
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    assert output == " Engine name: MM\n"
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
+
+    assert driver_out == " Engine name: MM\n"
 
 def test_cxx_py_tcp():
     command = "cd " + build_dir + '''
