@@ -104,8 +104,9 @@ color = 0
 key = world_rank
 if world_rank < world_size//2:
     color = 1
-mpi_task_comm = mpi_world.Split(color, key)
-task_rank = mpi_task_comm.Get_rank()
+if use_mpi4py:
+    mpi_task_comm = mpi_world.Split(color, key)
+    task_rank = mpi_task_comm.Get_rank()
 # Check if this connection uses the LIBRARY method
 #method = MDI_Get_Method(comm)
 method = mdi.MDI_LIB
