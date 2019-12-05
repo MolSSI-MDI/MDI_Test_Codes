@@ -1,4 +1,5 @@
 import os
+import sys
 import glob
 import subprocess
 
@@ -231,13 +232,14 @@ def test_py_py_mpi():
 ##########################
 
 def test_cxx_cxx_tcp():
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
     driver_name = glob.glob("../build/driver_cxx*")[0]
     engine_name = glob.glob("../build/engine_cxx*")[0]
 
+    # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
-
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
@@ -247,13 +249,14 @@ def test_cxx_cxx_tcp():
     assert driver_out == " Engine name: MM\n"
 
 def test_cxx_f90_tcp():
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
     driver_name = glob.glob("../build/driver_cxx*")[0]
     engine_name = glob.glob("../build/engine_f90*")[0]
 
+    # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
                                    stdout=subprocess.PIPE)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
-
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
@@ -263,106 +266,112 @@ def test_cxx_f90_tcp():
     assert driver_out == " Engine name: MM\n"
 
 def test_cxx_py_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-python engine_py.py -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_cxx*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_cxx_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_f90*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
+    engine_name = glob.glob("../build/engine_cxx*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_f90_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_f90*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_f90*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the names of the driver and engine codes, which include a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_py_tcp():
-    command = "cd " + build_dir + '''
-./$(find driver_f90*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-python engine_py.py -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_f90*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_cxx_tcp():
-    command = "cd " + build_dir + '''
-python driver_py.py -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the name of the engine code, which includes a .exe extension on Windows
+    engine_name = glob.glob("../build/engine_cxx*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_f90_tcp():
-    command = "cd " + build_dir + '''
-python driver_py.py -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-./$(find engine_f90*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # get the name of the engine code, which includes a .exe extension on Windows
+    engine_name = glob.glob("../build/engine_f90*")[0]
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # run the calculation
+    driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_py_tcp():
-    command = "cd " + build_dir + '''
-python driver_py.py -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &
-python engine_py.py -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &
-wait'''
+    # run the calculation
+    driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
+                                   stdout=subprocess.PIPE)
+    engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
+    driver_tup = driver_proc.communicate()
+    engine_proc.communicate()
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    # convert the driver's output into a string
+    driver_out = driver_tup[0].decode('utf-8')
 
-    # read the output file
-    output_file = open(build_dir + "/output", "r")
-    output = output_file.read()
-
-    assert output == " Engine name: MM\n"
+    assert driver_out == " Engine name: MM\n"
