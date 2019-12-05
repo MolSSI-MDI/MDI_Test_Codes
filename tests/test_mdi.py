@@ -3,7 +3,8 @@ import os
 build_dir = "../build"
 
 # Includes flags to prevent warning messages
-mpiexec_command = "mpiexec --mca btl_base_warn_component_unused 0 "
+mpiexec_general = "mpiexec "
+mpiexec_mca = "mpiexec --mca btl_base_warn_component_unused 0 "
 
 ##########################
 # LIBRARY Method         #
@@ -48,12 +49,17 @@ NATOMS: 123
 ##########################
 
 def test_cxx_cxx_mpi():
-    command = ( "cd " + build_dir + "\n" + mpiexec_command + 
-                '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"''')
+    command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -62,12 +68,17 @@ def test_cxx_cxx_mpi():
     assert output == " Engine name: MM\n"
 
 def test_cxx_f90_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -76,12 +87,17 @@ mpiexec -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -me
     assert output == " Engine name: MM\n"
 
 def test_cxx_py_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -90,12 +106,17 @@ mpiexec -n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -me
     assert output == " Engine name: MM\n"
 
 def test_f90_cxx_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
-    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
+    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"''' 
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -104,12 +125,17 @@ mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -me
     assert output == " Engine name: MM\n"
 
 def test_f90_f90_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -118,12 +144,17 @@ mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -me
     assert output == " Engine name: MM\n"
 
 def test_f90_py_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -132,12 +163,17 @@ mpiexec -n 1 ./$(find ../build/driver_f90*) -mdi \"-role DRIVER -name driver -me
     assert output == " Engine name: MM\n"
 
 def test_py_cxx_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -146,12 +182,17 @@ mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -meth
     assert output == " Engine name: MM\n"
 
 def test_py_f90_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_f90*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
@@ -160,12 +201,17 @@ mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -meth
     assert output == " Engine name: MM\n"
 
 def test_py_py_mpi():
-    command = "cd " + build_dir + '''
-mpiexec -n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
+    command_suffix = '''-n 1 python ../build/driver_py.py -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 python ../build/engine_py.py -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    cmd_return = os.system( command )
-    #assert cmd_return == 0
+    try:
+        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
+    except AssertionError: # MCA
+        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+        cmd_return = os.system( command )
+        assert cmd_return == 0
 
     # read the output file
     output_file = open(build_dir + "/output", "r")

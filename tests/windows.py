@@ -52,15 +52,8 @@ print("Error code: " + str(ierr))
 
 
 print("Doing subprocess")
-command = ( "mkdir CCC1_dir;" + 
-            "mkdir CCC11_dir;" + 
-            "$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method TCP -port 8021 -out output\" &;" +
-            "mkdir CCC2_dir;" +
-            "$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method TCP -port 8021 -hostname localhost\" &;" + 
-            "mkdir CCC3_dir;" +
-            "wait;" +
-            "mkdir CCC4_dir" )
 command = ( "ls;" + 
             "pwd" )
-result = subprocess.check_output(command, shell=True)
+#result = subprocess.check_output(command, shell=True)
+result = subprocess.check_output(["cmd.exe","pwd"])
 print("End of subprocess: " + str(result))
