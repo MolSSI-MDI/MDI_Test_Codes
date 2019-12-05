@@ -59,18 +59,18 @@ matrix:
          - cp lib/mdi/MDI_Library/*.dll* .
          - cp MDI_Test_Codes/STUBS_MPI/*.dll* .
 
-         - cd ../tests
-         - cp ../build/driver_cxx.exe .
-         - cp ../build/engine_cxx.exe .
-         - cp ../build/libmdi.dll .
-         - cp ../build/libmdi.dll.a .
-         - ls
-         - python windows.py
-         - ls
-         - pwd
-         - ls ../build
-         - cat ../build/output
-         - cd ../build
+         #- cd ../tests
+         #- cp ../build/driver_cxx.exe .
+         #- cp ../build/engine_cxx.exe .
+         #- cp ../build/libmdi.dll .
+         #- cp ../build/libmdi.dll.a .
+         #- ls
+         #- python windows.py
+         #- ls
+         #- pwd
+         #- ls ../build
+         #- cat ../build/output
+         #- cd ../build
 
 
 install:

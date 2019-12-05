@@ -19,24 +19,41 @@ def test_cxx_cxx_lib():
     # get the name of the driver code, which includes a .exe extension on Windows
     driver_name = glob.glob("../build/driver_lib_cxx*")[0]
 
-    # run the calculation
-    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
-                                   stdout=subprocess.PIPE)
-    driver_tup = driver_proc.communicate()
+    try:
+        # run the calculation
+        driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        driver_tup = driver_proc.communicate()
 
-    # convert the driver's output into a string
-    driver_out = driver_tup[0].decode('utf-8')
+        # convert the driver's output into a string
+        driver_out = driver_tup[0].decode('utf-8')
+        driver_err = driver_tup[1].decode('utf-8')
+
+        assert driver_err == ""
+
+    except AssertionError: # MCA case
+        # run the calculation
+        driver_proc = subprocess.Popen(["mpiexec","--mca btl_base_warn_component_unused","0",driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        driver_tup = driver_proc.communicate()
+
+        # convert the driver's output into a string
+        driver_out = driver_tup[0].decode('utf-8')
+        driver_err = driver_tup[1].decode('utf-8')
+
+        assert driver_err == ""
 
     assert driver_out == " Engine name: MM\n"
 
 def test_py_py_lib():
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/lib_py.py", "-mdi", "-role DRIVER -name driver -method LIBRARY"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     driver_tup = driver_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
     expected = '''Start of driver
 Setting generic command
@@ -44,6 +61,7 @@ SUCCESS
 NATOMS: 123
 '''
 
+    assert driver_err == ""
     assert driver_out == expected
 
 
@@ -246,7 +264,9 @@ def test_cxx_cxx_tcp():
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_cxx_f90_tcp():
@@ -256,14 +276,16 @@ def test_cxx_f90_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_cxx_py_tcp():
@@ -272,7 +294,7 @@ def test_cxx_py_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"], 
                                    cwd=build_dir)
     driver_tup = driver_proc.communicate()
@@ -280,7 +302,9 @@ def test_cxx_py_tcp():
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_f90_cxx_tcp():
@@ -290,14 +314,16 @@ def test_f90_cxx_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE,  stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_f90_f90_tcp():
@@ -307,14 +333,16 @@ def test_f90_f90_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_f90_py_tcp():
@@ -323,7 +351,7 @@ def test_f90_py_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"],
                                    cwd=build_dir)
     driver_tup = driver_proc.communicate()
@@ -331,7 +359,9 @@ def test_f90_py_tcp():
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_py_cxx_tcp():
@@ -340,14 +370,16 @@ def test_py_cxx_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE, cwd=build_dir)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_py_f90_tcp():
@@ -356,20 +388,22 @@ def test_py_f90_tcp():
 
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE, cwd=build_dir)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
     engine_proc = subprocess.Popen([engine_name, "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"])
     driver_tup = driver_proc.communicate()
     engine_proc.communicate()
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
 def test_py_py_tcp():
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/driver_py.py", "-mdi", "-role DRIVER -name driver -method TCP -port 8021"],
-                                   stdout=subprocess.PIPE, cwd=build_dir)
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
     engine_proc = subprocess.Popen([sys.executable, "../build/engine_py.py", "-mdi", "-role ENGINE -name MM -method TCP -port 8021 -hostname localhost"],
                                    cwd=build_dir)
     driver_tup = driver_proc.communicate()
@@ -377,5 +411,7 @@ def test_py_py_tcp():
 
     # convert the driver's output into a string
     driver_out = driver_tup[0].decode('utf-8')
+    driver_err = driver_tup[1].decode('utf-8')
 
+    assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
