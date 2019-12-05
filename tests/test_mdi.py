@@ -52,14 +52,17 @@ def test_cxx_cxx_mpi():
     command_suffix = '''-n 1 ./$(find ../build/driver_cxx*) -mdi \"-role DRIVER -name driver -method MPI -out output\" : \\
     -n 1 ./$(find ../build/engine_cxx*) -mdi \"-role ENGINE -name MM -method MPI\"'''
 
-    try:
-        command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 0
-    except AssertionError: # MCA
-        command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
-        cmd_return = os.system( command )
-        assert cmd_return == 1
+    command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+    cmd_return = os.system( command )
+    assert cmd_return == 0
+    #try:
+    #    command = "cd " + build_dir + "\n" + mpiexec_general + command_suffix
+    #    cmd_return = os.system( command )
+    #    assert cmd_return == 0
+    #except AssertionError: # MCA
+    #    command = "cd " + build_dir + "\n" + mpiexec_mca + command_suffix
+    #    cmd_return = os.system( command )
+    #    assert cmd_return == 1
 
     # read the output file
     output_file = open(build_dir + "/output", "r")
