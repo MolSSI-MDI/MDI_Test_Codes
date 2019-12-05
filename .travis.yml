@@ -13,6 +13,8 @@ matrix:
       before_install:
         - sudo apt-get install gfortran
         - sudo apt-get install mpich libmpich-dev
+        - sudo pip install mpi4py
+        - sudo pip install numpy
         - sudo pip install -U pytest
       before_script:
         - cd ../tests
