@@ -28,6 +28,8 @@ typedef struct communicator_struct {
   int method;
   /*! \brief MPI_Comm handle that corresponds to this communicator */
   MDI_Comm_Type id;
+  /*! \brief Handle for the id of the associated code */
+  int code_id;
   /*! \brief For communicators using the TCP communicatiom method, the socket descriptor */
   int sockfd;
   /*! \brief For communicators using the MPI communicatiom method, the inter-code MPI 
@@ -42,6 +44,8 @@ typedef struct communicator_struct {
   vector* nodes;
   /*! \brief Method-specific information for this communicator */
   void* method_data;
+  /*! \brief Function pointer for method-specific deletion operations */
+  int (*delete)(void*);
 } communicator;
 
 typedef struct node_struct {
@@ -103,12 +107,18 @@ int vector_free(vector* v);
 int get_node_index(vector* v, const char* node_name);
 int get_command_index(node* n, const char* command_name);
 int get_callback_index(node* n, const char* callback_name);
-
+int free_node_vector(vector* v);
 
 int new_communicator(int code_id, int method);
 communicator* get_communicator(int code_id, MDI_Comm_Type comm_id);
+int delete_communicator(int code_id, MDI_Comm_Type comm_id);
+
 int new_code();
 code* get_code(int code_id);
+int delete_code(int code_id);
+
+/*! \brief Dummy function for method-specific deletion operations for communicator deletion */
+int communicator_delete(void* comm);
 
 void mdi_error(const char* message);
 

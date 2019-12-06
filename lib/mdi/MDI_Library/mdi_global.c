@@ -178,6 +178,23 @@ int get_callback_index(node* n, const char* callback_name) {
 }
 
 
+/*! \brief Determine the index of a callback within a node
+ */
+int free_node_vector(vector* v) {
+  int inode = 0;
+  for ( inode = 0; inode < v->size; inode++ ) {
+    node* this_node = vector_get(v, inode);
+
+    // free the "commands" and "callbacks" vectors for this node
+    vector_free(this_node->commands);
+    vector_free(this_node->callbacks);
+  }
+
+  // free this node vector
+  vector_free(v);
+}
+
+
 /*! \brief Create a new code structure and add it to the list of codes
  * Returns the index of the new code
  */
@@ -225,6 +242,48 @@ code* get_code(int code_id) {
 }
 
 
+/*! \brief Delete a code
+ * Returns 0 on success
+ */
+int delete_code(int code_id) {
+  code* this_code = get_code(code_id);
+
+  // Search through all of the codes for the one that matches comm_id
+  int icode;
+  int code_index;
+  int code_found = 0;
+  for (icode = 0; icode < codes.size; icode++ ) {
+    code* code = vector_get(&codes, icode);
+    if ( code->id == code_id ) {
+      code_found = 1;
+      code_index = icode;
+
+      // stop searching
+      icode = codes.size;
+    }
+  }
+  if ( code_found != 1 ) {
+    mdi_error("Communicator not found during delete");
+  }
+
+  // delete the node vector
+  free_node_vector(this_code->nodes);
+
+  // delete the comms vector
+  int icomm;
+  for (icomm = 0; icomm < this_code->comms->size; icomm++) {
+    communicator* this_comm = vector_get( this_code->comms, this_code->comms->size - 1 );
+    delete_communicator(code_id, this_comm->id);
+  }
+  vector_free( this_code->comms );
+
+  // delete the data for this code from the global vector of codes
+  vector_delete(&codes, icode);
+
+  return 0;
+}
+
+
 /*! \brief Create a new communicator structure and add it to the list of communicators
  * Returns the handle of the new communicator
  */
@@ -237,8 +296,11 @@ int new_communicator(int code_id, int method) {
   vector_init(node_vec, sizeof(node));
   new_comm.nodes = node_vec;
   new_comm.id = this_code->next_comm;
+  new_comm.code_id = code_id;
   new_comm.mdi_version = 0.0;
   this_code->next_comm++;
+
+  new_comm.delete = communicator_delete;
 
   vector_push_back( this_code->comms, &new_comm );
 
@@ -262,6 +324,51 @@ communicator* get_communicator(int code_id, MDI_Comm_Type comm_id) {
   }
   mdi_error("Communicator not found");
   return NULL;
+}
+
+
+/*! \brief Delete a communicator
+ * Returns 0 on success
+ */
+int delete_communicator(int code_id, MDI_Comm_Type comm_id) {
+  code* this_code = get_code(code_id);
+  communicator* this_comm = get_communicator(code_id, comm_id);
+
+  // Search through all of the communicators for the one that matches comm_id
+  int icomm;
+  int comm_index;
+  int comm_found = 0;
+  for (icomm = 0; icomm < this_code->comms->size; icomm++ ) {
+    communicator* comm = vector_get(this_code->comms, icomm);
+    if ( comm->id == comm_id ) {
+      comm_found = 1;
+      comm_index = icomm;
+
+      // stop searching
+      icomm = this_code->comms->size;
+    }
+  }
+  if ( comm_found != 1 ) {
+    mdi_error("Communicator not found during delete");
+  }
+
+  // do any method-specific deletion operations
+  this_comm->delete(this_comm);
+
+  // delete the node vector
+  free_node_vector(this_comm->nodes);
+
+  // delete the data for this communicator from the code's vector of communicators
+  vector_delete(this_code->comms, icomm);
+
+  return 0;
+}
+
+
+/*! \brief Dummy function for method-specific deletion operations for communicator deletion
+ */
+int communicator_delete(void* comm) {
+  return 0;
 }
 
 

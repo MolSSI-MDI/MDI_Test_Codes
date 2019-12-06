@@ -495,6 +495,12 @@ int general_send_command(const char* buf, MDI_Comm comm) {
   else {
     ret = general_send( command, count, MDI_CHAR, comm );
   }
+
+  // if the command was "EXIT", delete this communicator
+  if ( strcmp( command, "EXIT" ) == 0 ) {
+    delete_communicator(current_code, comm);
+  }
+
   free( command );
   return ret;
 }

@@ -363,3 +363,25 @@ int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
 
   return 0;
 }
+
+
+/*! \brief Function for LIBRARY-specific deletion operations for communicator deletion
+ */
+int communicator_delete_lib(void* comm) {
+  communicator* this_comm = (communicator*) comm;
+  code* this_code = get_code(this_comm->code_id);
+
+  // delete the method-specific information
+  library_data* libd = (library_data*) this_comm->method_data;
+  if ( libd->buf_allocated ) {
+    free( libd->buf );
+  }
+  free( libd );
+
+  // if this is the driver, delete the engine code
+  if ( this_code->is_library == 0 ) {
+    delete_code(libd->connected_code);
+  }
+
+  return 0;
+}
