@@ -381,6 +381,6 @@ def MDI_Set_Execute_Command_Func(func, class_obj):
     execute_command_dict[current_code] = ( func, class_obj )
 
     # this is just a dummy pointer; the actual object is stored in execute_command_dict
-    class_obj_pointer = c_void_p()
+    class_obj_pointer = ctypes.c_void_p()
 
-    return mdi.MDI_Set_Execute_Command_Func( MDI_Execute_Command_c, class_object_pointer )
+    return mdi.MDI_Set_Execute_Command_Func( MDI_Execute_Command_c, class_obj_pointer )

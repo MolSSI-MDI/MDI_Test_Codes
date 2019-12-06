@@ -32,7 +32,7 @@ else:
 exit_flag = False
 engine = None
 
-def execute_command(command, comm):
+def execute_command(command, comm, class_obj):
     global exit_flag
     global engine
     #print("IN EXECUTE COMMAND")
@@ -69,7 +69,7 @@ class MDIEngine:
         # Set the generic execute_command function
         if self.world_rank == 0:
             print("Setting generic command")
-        mdi.MDI_Set_Command_Func(execute_command)
+        mdi.MDI_Set_Execute_Command_Func(execute_command, None)
 
     #while not exit_flag:
     #    if world_rank == 0:
@@ -79,7 +79,7 @@ class MDIEngine:
     #    if use_mpi4py:
     #        command = mpi_world.bcast(command, root=0)
     #
-    #    execute_command( command, comm )
+    #    execute_command( command, comm, None )
 
 
 ######################################################################

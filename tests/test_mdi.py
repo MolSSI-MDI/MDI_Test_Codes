@@ -97,8 +97,8 @@ def test_cxx_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_cxx_py_mpi():
     # get the name of the driver code, which includes a .exe extension on Windows
@@ -114,8 +114,8 @@ def test_cxx_py_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_cxx_mpi():
     # get the names of the driver and engine codes, which include a .exe extension on Windows
@@ -132,8 +132,8 @@ def test_f90_cxx_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_f90_mpi():
     # get the names of the driver and engine codes, which include a .exe extension on Windows
@@ -150,8 +150,8 @@ def test_f90_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_py_mpi():
     # get the name of the driver code, which includes a .exe extension on Windows
@@ -167,8 +167,8 @@ def test_f90_py_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_cxx_mpi():
     # get the name of the engine code, which includes a .exe extension on Windows
@@ -184,8 +184,8 @@ def test_py_cxx_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_f90_mpi():
     # get the name of the engine code, which includes a .exe extension on Windows
@@ -201,8 +201,8 @@ def test_py_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_py_mpi():
     # run the calculation

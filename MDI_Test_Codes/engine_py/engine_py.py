@@ -40,7 +40,6 @@ else:
     mpi_world = None
 
 # Initialize the MDI Library
-print("HERE")
 mdi.MDI_Init(sys.argv[2],mpi_world)
 if use_mpi4py:
     mpi_world = mdi.MDI_Get_Intra_Code_MPI_Comm()
