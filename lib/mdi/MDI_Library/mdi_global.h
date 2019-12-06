@@ -97,6 +97,8 @@ extern int is_initialized;
 int vector_init(vector* v, size_t stride);
 int vector_push_back(vector* v, void* element);
 void* vector_get(vector* v, int index);
+int vector_delete(vector* v, int index);
+int vector_free(vector* v);
 
 int get_node_index(vector* v, const char* node_name);
 int get_command_index(node* n, const char* command_name);

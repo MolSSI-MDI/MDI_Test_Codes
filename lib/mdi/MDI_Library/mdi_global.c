@@ -74,6 +74,40 @@ int vector_push_back(vector* v, void* element) {
   return 0;
 }
 
+/*! \brief Remove an element from a vector
+ *
+ * \param [in]       v
+ *                   Pointer to the vector from which the element will be removed
+ * \param [in]       index
+ *                   Index of the element that will be removed from the vector
+ */
+int vector_delete(vector* v, int index) {
+  // copy the data from the last element to the element that is being deleted
+  memcpy( v->data + (index * v->stride), v->data + ( (v->size - 1) * v->stride ), v->stride );
+  v->size--;
+
+  // shrink the vector
+  if (v->size <= v->capacity / 2) {
+    int new_capacity = v->capacity / 2;
+    void* new_data = malloc( v->stride * new_capacity );
+    memcpy(new_data, v->data, v->size * v->stride);
+    free(v->data);
+    v->data = new_data;
+    v->capacity = new_capacity;
+  }
+
+  return 0;
+}
+
+/*! \brief Free all data associated with a vector
+ *
+ * \param [in]       v
+ *                   Pointer to the vector that will be freed
+ */
+int vector_free(vector* v) {
+  free(v->data);
+}
+
 /*! \brief Return a pointer to an element of a vector
  *
  * \param [in]       v
