@@ -353,7 +353,7 @@ def MDI_Get_Current_Code():
 #####################################
 # Callback functions                #
 #####################################
-def MDI_Execute_Command_py(command, comm):
+def MDI_Execute_Command_py(command, comm, class_obj):
     global execute_command_dict
 
     command_cast = ctypes.cast(command, ctypes.POINTER(ctypes.c_char*MDI_COMMAND_LENGTH)).contents
@@ -363,20 +363,24 @@ def MDI_Execute_Command_py(command, comm):
     # get the current code
     current_code = MDI_Get_Current_Code()
 
-    return execute_command_dict[current_code](command_py, comm)
+    class_obj_real = execute_command_dict[current_code][1]
+    return execute_command_dict[current_code][0](command_py, comm, class_obj_real)
 
-# MDI_Set_Command_Func
+# MDI_Set_Execute_Command_Func
 # NOTE: Do we need to use WINFUNCTYPE on Windows?
-execute_command_func_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.POINTER(ctypes.c_char), ctypes.c_int)
+execute_command_func_type = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_void_p)
 MDI_Execute_Command_c = execute_command_func_type( MDI_Execute_Command_py )
-mdi.MDI_Set_Command_Func.argtypes = [execute_command_func_type]
-mdi.MDI_Set_Command_Func.restype = ctypes.c_int
-def MDI_Set_Command_Func(func):
+mdi.MDI_Set_Execute_Command_Func.argtypes = [execute_command_func_type, ctypes.c_void_p]
+mdi.MDI_Set_Execute_Command_Func.restype = ctypes.c_int
+def MDI_Set_Execute_Command_Func(func, class_obj):
     global execute_command_dict
 
     current_code = MDI_Get_Current_Code()
 
     # store the generic execute command function for future use
-    execute_command_dict[current_code] = func
+    execute_command_dict[current_code] = ( func, class_obj )
 
-    return mdi.MDI_Set_Command_Func( MDI_Execute_Command_c )
+    # this is just a dummy pointer; the actual object is stored in execute_command_dict
+    class_obj_pointer = c_void_p()
+
+    return mdi.MDI_Set_Execute_Command_Func( MDI_Execute_Command_c, class_object_pointer )

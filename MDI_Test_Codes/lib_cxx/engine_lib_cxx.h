@@ -12,6 +12,6 @@
 #include "mdi.h"
 
 DllExport int engine_lib_cxx_create(MPI_Comm mpi_comm);
-DllExport int execute_command(const char* command, MDI_Comm comm);
+DllExport int execute_command(const char* command, MDI_Comm comm, void* class_obj);
 
 #endif

@@ -214,9 +214,9 @@ def test_py_py_mpi():
     # convert the driver's output into a string
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
-
-    assert driver_out == " Engine name: MM\n"
+ 
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 
 

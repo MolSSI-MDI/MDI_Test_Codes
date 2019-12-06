@@ -6,7 +6,7 @@
 
 bool exit_signal = false;
 
-int execute_command(const char* command, MDI_Comm comm) {
+int execute_command(const char* command, MDI_Comm comm, void* class_obj) {
   if ( strcmp(command, "EXIT") == 0 ) {
     exit_signal = true;
   }
@@ -59,8 +59,9 @@ int main(int argc, char **argv) {
   }
 
   // Create the execute_command pointer
-  int (*generic_command)(const char*, MDI_Comm) = execute_command;
-  MDI_Set_Command_Func(generic_command);
+  int (*generic_command)(const char*, MDI_Comm, void*) = execute_command;
+  void* engine_obj;
+  MDI_Set_Execute_Command_Func(generic_command, engine_obj);
 
   // Connect to the driver
   MDI_Comm comm;
@@ -72,7 +73,7 @@ int main(int argc, char **argv) {
 
     MDI_Recv_Command(command, comm);
 
-    execute_command(command, comm);
+    execute_command(command, comm, NULL);
 
   }
   delete [] command;

@@ -71,7 +71,9 @@ typedef struct code_struct {
   /*! \brief Vector containing all communicators associated with this code */
   vector* comms;
   /*! \brief Function pointer to the generic execute_command_function */
-  int (*execute_command)(const char*, MDI_Comm_Type);
+  int (*execute_command)(const char*, MDI_Comm_Type, void*);
+  /*! \brief Pointer to the class object that is passed to any call to execute_command */
+  void* execute_command_obj;
   /*! \brief Flag whether this code is being used as a library
   0: Not a library
   1: Is an ENGINE library, but has not connected to the driver

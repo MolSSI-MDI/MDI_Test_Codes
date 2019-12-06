@@ -108,8 +108,8 @@ DllExport int MDI_Get_NCallbacks(const char* node_name, MDI_Comm comm, int* ncal
 DllExport int MDI_Get_Callback(const char* node_name, int index, MDI_Comm comm, char* name);
 
 // functions for managing callback functions (used only with the LIBRARY communication method)
-DllExport int MDI_Set_Command_Func(int (*generic_command)(const char*, MDI_Comm));
-DllExport int MDI_Execute_Command(const char* command_name, void* buf, int count, MDI_Datatype datatype, MDI_Comm comm);
+DllExport int MDI_Set_Execute_Command_Func(int (*generic_command)(const char*, MDI_Comm, void*), void* class_object);
+//DllExport int MDI_Execute_Command(const char* command_name, void* buf, int count, MDI_Datatype datatype, MDI_Comm comm);
 
 // only used internally by MDI
 DllExport void mdi_error(const char* message);

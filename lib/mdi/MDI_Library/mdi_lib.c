@@ -215,7 +215,8 @@ int library_execute_command(MDI_Comm comm) {
 
   if ( builtin_flag == 0 ) {
     // call execute_command now
-    ret = engine_code->execute_command(engine_lib->command,engine_comm_handle);
+    void* class_obj = engine_code->execute_command_obj;
+    ret = engine_code->execute_command(engine_lib->command,engine_comm_handle,class_obj);
   }
 
   // set the current code to the driver

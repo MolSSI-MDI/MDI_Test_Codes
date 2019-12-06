@@ -45,7 +45,6 @@ int general_init(const char* options, void* world_comm) {
   // values acquired from the input options
   char* role;
   char* method;
-  //name = malloc(MDI_NAME_LENGTH+1);
   char* hostname;
   int port;
   char* output_file;
@@ -1217,5 +1216,5 @@ int general_execute_command(const char* command_name, void* buf, int count, MDI_
   libd->buf = buf;
 
   // call execute_command
-  return this_code->execute_command(command_name,comm);
+  return this_code->execute_command(command_name,comm,this_code->execute_command_obj);
 }
