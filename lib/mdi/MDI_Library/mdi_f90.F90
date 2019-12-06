@@ -100,6 +100,29 @@
 
   END SUBROUTINE add_execute_command
 
+  ! Remove a value from the execute_command dictionary
+  SUBROUTINE remove_execute_command(key)
+    INTEGER, INTENT(IN)                      :: key
+    INTEGER                                  :: index
+    TYPE(command_func_ptr), ALLOCATABLE      :: temp_dict(:)
+
+    index = find_execute_command( key )
+
+    ! Store the execute_commands data in a temporary array
+    ALLOCATE( temp_dict( SIZE(execute_commands) ) )
+    temp_dict = execute_commands
+
+    ! Replace the deleted element with the last element
+    temp_dict(index) = temp_dict( SIZE(temp_dict) )
+      
+    ! Reallocate execute_commands to the correct size
+    DEALLOCATE( execute_commands )
+    ALLOCATE( execute_commands( SIZE(temp_dict) - 1 ) )
+    execute_commands(1:SIZE(execute_commands)) = temp_dict
+    DEALLOCATE( temp_dict )
+
+  END SUBROUTINE remove_execute_command
+
   FUNCTION MDI_Execute_Command_f(buf, comm) bind(c)
     CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: buf(COMMAND_LENGTH)
     INTEGER(KIND=C_INT), VALUE               :: comm
@@ -134,6 +157,11 @@
       WRITE(6,*)'MDI Error: Could not locate correct execute_command callback'
     END IF
     call execute_commands(i)%value(fbuf, commf, ierr)
+
+    ! If this is the EXIT command, delete all Fortran state associated with the code
+    IF ( TRIM(fbuf) .eq. "EXIT" ) THEN
+      CALL remove_execute_command( current_code )
+    END IF
 
     MDI_Execute_Command_f = ierr
 
@@ -476,6 +504,7 @@
 
     SUBROUTINE MDI_Recv_Command(fbuf, comm, ierr)
       USE ISO_C_BINDING
+      USE MDI_INTERNAL, ONLY : MDI_Get_Current_Code_, remove_execute_command
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
@@ -484,7 +513,7 @@
       INTEGER, INTENT(IN)                      :: comm
       INTEGER, INTENT(OUT)                     :: ierr
 
-      INTEGER                                  :: i
+      INTEGER                                  :: i, current_code
       LOGICAL                                  :: end_string
       CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(MDI_COMMAND_LENGTH)
 
@@ -501,6 +530,12 @@
             fbuf(i:i) = cbuf(i)
          END IF
       ENDDO
+
+      ! If this is the EXIT command, delete all Fortran state associated with the code
+      IF ( TRIM(fbuf) .eq. "EXIT" ) THEN
+        current_code = MDI_Get_Current_Code_()
+        CALL remove_execute_command( current_code )
+      END IF
     END SUBROUTINE MDI_Recv_Command
 
     SUBROUTINE MDI_Conversion_Factor(fin_unit, fout_unit, factor, ierr)
