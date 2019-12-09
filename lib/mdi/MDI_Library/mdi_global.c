@@ -194,6 +194,8 @@ int free_node_vector(vector* v) {
 
   // free this node vector
   vector_free(v);
+
+  return 0;
 }
 
 
