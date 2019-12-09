@@ -352,7 +352,7 @@ int general_accept_communicator() {
 
   // if MDI hasn't returned some connections, do that now
   code* this_code = get_code(current_code);
-  if ( this_code->returned_comms < this_code->comms->size ) {
+  if ( this_code->returned_comms < this_code->next_comm - 1 ) {
     this_code->returned_comms++;
     return this_code->returned_comms;
   }

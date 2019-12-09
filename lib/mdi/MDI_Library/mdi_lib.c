@@ -20,6 +20,7 @@ int library_initialize() {
 
   MDI_Comm comm_id = new_communicator(this_code->id, MDI_LIB);
   communicator* new_comm = get_communicator(this_code->id, comm_id);
+  new_comm->delete = communicator_delete_lib;
 
   // allocate the method data
   library_data* libd = malloc(sizeof(library_data));
@@ -370,18 +371,18 @@ int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm) {
 int communicator_delete_lib(void* comm) {
   communicator* this_comm = (communicator*) comm;
   code* this_code = get_code(this_comm->code_id);
-
-  // delete the method-specific information
   library_data* libd = (library_data*) this_comm->method_data;
-  if ( libd->buf_allocated ) {
-    free( libd->buf );
-  }
-  free( libd );
 
   // if this is the driver, delete the engine code
   if ( this_code->is_library == 0 ) {
     delete_code(libd->connected_code);
   }
+
+  // delete the method-specific information
+  if ( libd->buf_allocated ) {
+    free( libd->buf );
+  }
+  free( libd );
 
   return 0;
 }
