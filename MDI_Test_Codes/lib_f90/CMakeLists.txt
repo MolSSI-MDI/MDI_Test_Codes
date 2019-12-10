@@ -33,17 +33,15 @@ endif()
 # Compile the engine library
 add_library(engine_lib_f90 SHARED
             engine_lib_f90.F90)
+target_link_libraries(engine_lib_f90 mdi)
 set_target_properties(engine_lib_f90 PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
-target_link_libraries(engine_lib_f90 mdi)
-
-# Copy the engine header file into the binary directory
-#configure_file(${CMAKE_CURRENT_BINARY_DIR}/engine_lib_f90.mod ${CMAKE_BINARY_DIR}/engine_lib_f90.mod COPYONLY)
 
 if(NOT MPI_Fortran_FOUND)
    target_include_directories(engine_lib_f90 PRIVATE ${CMAKE_BINARY_DIR}/MDI_Test_Codes/STUBS_MPI/)
+   target_link_libraries(engine_lib_f90 mpi)
 else()
    target_include_directories(engine_lib_f90 PUBLIC
       ${MPI_Fortran_INCLUDE_PATH} )
