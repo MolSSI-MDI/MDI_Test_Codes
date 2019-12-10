@@ -32,7 +32,7 @@ endif()
 
 # Compile the engine library
 add_library(engine_lib_f90 SHARED
-            engine_lib_f90.f90)
+            engine_lib_f90.F90)
 set_target_properties(engine_lib_f90 PROPERTIES
     ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
@@ -67,7 +67,7 @@ endif()
 # Compile the driver
 
 add_executable(driver_lib_f90
-               driver_lib_f90.f90)
+               driver_lib_f90.F90)
 target_link_libraries(driver_lib_f90 mdi
                       engine_lib_f90)
 set_target_properties(driver_lib_f90 PROPERTIES
