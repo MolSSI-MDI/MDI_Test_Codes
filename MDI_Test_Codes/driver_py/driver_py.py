@@ -8,6 +8,7 @@ except ImportError: # Check for local build
     except ImportError: # Python 2
         sys.path.append('lib/mdi')
         import MDI_Library as mdi
+
 try:
     import numpy
     use_numpy = True

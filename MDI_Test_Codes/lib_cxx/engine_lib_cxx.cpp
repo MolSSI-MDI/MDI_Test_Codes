@@ -12,11 +12,12 @@ int engine_lib_cxx_create(MPI_Comm mpi_comm) {
   int ret = MDI_Init("-role ENGINE -method LIBRARY -name MM -driver_name driver", &world_comm);
 
   // Set the execute_command callback
-  MDI_Set_Command_Func(execute_command);
+  void* engine_obj;
+  MDI_Set_Execute_Command_Func(execute_command, engine_obj);
 
   return 0;
 }
 
-int execute_command(const char* command, MDI_Comm comm) {
+int execute_command(const char* command, MDI_Comm comm, void* class_obj) {
   return 0;
 }

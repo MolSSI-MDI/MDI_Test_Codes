@@ -5,4 +5,4 @@ from .mdi import MDI_VERSION
 from .mdi import MDI_Init, MDI_Accept_Communicator
 from .mdi import MDI_Send, MDI_Recv, MDI_Send_Command, MDI_Recv_Command
 from .mdi import MDI_Conversion_Factor, MDI_Get_Intra_Code_MPI_Comm
-from .mdi import MDI_Set_Command_Func
+from .mdi import MDI_Set_Execute_Command_Func

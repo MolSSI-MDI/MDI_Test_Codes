@@ -21,7 +21,7 @@ except ImportError:
 
 exit_flag = False
 
-def execute_command(command, comm):
+def execute_command(command, comm, class_obj):
     global exit_flag
 
     if command == "EXIT":
@@ -48,7 +48,7 @@ else:
     world_rank = 0
 
 # Set the generic execute_command function
-mdi.MDI_Set_Command_Func(execute_command)
+mdi.MDI_Set_Execute_Command_Func(execute_command, None)
 
 # Connect to the driver
 comm = mdi.MDI_Accept_Communicator()
@@ -61,4 +61,4 @@ while not exit_flag:
     if use_mpi4py:
         command = mpi_world.bcast(command, root=0)
 
-    execute_command( command, comm )
+    execute_command( command, comm, None )

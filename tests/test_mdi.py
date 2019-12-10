@@ -50,9 +50,62 @@ def test_py_py_lib():
     driver_err = format_return(driver_tup[1])
 
     expected = '''Start of driver
-Setting generic command
-SUCCESS
-NATOMS: 123
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+NATOMS: 10
+'''
+
+    assert driver_err == ""
+    assert driver_out == expected
+
+def test_py_py_lib_mpi():
+    # run the calculation
+    driver_proc = subprocess.Popen(["mpiexec","-n","2",sys.executable, "../build/lib_py.py", "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=build_dir)
+    driver_tup = driver_proc.communicate()
+
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
+
+    expected = '''Start of driver
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
+NATOMS: 10
+NATOMS: 20
 '''
 
     assert driver_err == ""
@@ -97,8 +150,8 @@ def test_cxx_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_cxx_py_mpi():
     # get the name of the driver code, which includes a .exe extension on Windows
@@ -114,8 +167,8 @@ def test_cxx_py_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_cxx_mpi():
     # get the names of the driver and engine codes, which include a .exe extension on Windows
@@ -132,8 +185,8 @@ def test_f90_cxx_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_f90_mpi():
     # get the names of the driver and engine codes, which include a .exe extension on Windows
@@ -150,8 +203,8 @@ def test_f90_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_f90_py_mpi():
     # get the name of the driver code, which includes a .exe extension on Windows
@@ -167,8 +220,8 @@ def test_f90_py_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_cxx_mpi():
     # get the name of the engine code, which includes a .exe extension on Windows
@@ -184,8 +237,8 @@ def test_py_cxx_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_f90_mpi():
     # get the name of the engine code, which includes a .exe extension on Windows
@@ -201,8 +254,8 @@ def test_py_f90_mpi():
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
 
-    assert driver_out == " Engine name: MM\n"
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 def test_py_py_mpi():
     # run the calculation
@@ -214,9 +267,9 @@ def test_py_py_mpi():
     # convert the driver's output into a string
     driver_out = format_return(driver_tup[0])
     driver_err = format_return(driver_tup[1])
-
-    assert driver_out == " Engine name: MM\n"
+ 
     assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
 
 
 

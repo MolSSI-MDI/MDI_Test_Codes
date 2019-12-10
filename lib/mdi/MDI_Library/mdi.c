@@ -1042,9 +1042,10 @@ int MDI_Get_Callback(const char* node_name, int index, MDI_Comm comm, char* name
  * \param [in]       execute_command
  *                   Function pointer to the generic execute_command function
  */
-int MDI_Set_Command_Func(int (*generic_command)(const char*, MDI_Comm)) {
+int MDI_Set_Execute_Command_Func(int (*generic_command)(const char*, MDI_Comm, void*), void* class_object) {
   code* this_code = get_code(current_code);
   this_code->execute_command = generic_command;
+  this_code->execute_command_obj = class_object;
   return 0;
 }
 

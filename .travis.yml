@@ -71,5 +71,4 @@ install:
 
 script:
   - cd ../tests
-  - pytest -k "lib"
-  - pytest -k "tcp"
+  - pytest -k "not mpi"

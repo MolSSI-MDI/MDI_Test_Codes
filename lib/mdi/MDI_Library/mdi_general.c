@@ -45,7 +45,6 @@ int general_init(const char* options, void* world_comm) {
   // values acquired from the input options
   char* role;
   char* method;
-  //name = malloc(MDI_NAME_LENGTH+1);
   char* hostname;
   int port;
   char* output_file;
@@ -353,7 +352,7 @@ int general_accept_communicator() {
 
   // if MDI hasn't returned some connections, do that now
   code* this_code = get_code(current_code);
-  if ( this_code->returned_comms < this_code->comms->size ) {
+  if ( this_code->returned_comms < this_code->next_comm - 1 ) {
     this_code->returned_comms++;
     return this_code->returned_comms;
   }
@@ -496,6 +495,12 @@ int general_send_command(const char* buf, MDI_Comm comm) {
   else {
     ret = general_send( command, count, MDI_CHAR, comm );
   }
+
+  // if the command was "EXIT", delete this communicator
+  if ( strcmp( command, "EXIT" ) == 0 ) {
+    delete_communicator(current_code, comm);
+  }
+
   free( command );
   return ret;
 }
@@ -1217,5 +1222,5 @@ int general_execute_command(const char* command_name, void* buf, int count, MDI_
   libd->buf = buf;
 
   // call execute_command
-  return this_code->execute_command(command_name,comm);
+  return this_code->execute_command(command_name,comm,this_code->execute_command_obj);
 }

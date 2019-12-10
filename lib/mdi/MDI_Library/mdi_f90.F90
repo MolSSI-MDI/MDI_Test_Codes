@@ -32,11 +32,12 @@
 
   INTERFACE
 
-     FUNCTION MDI_Set_Command_Func_c(command_func) bind(c, name="MDI_Set_Command_Func")
+     FUNCTION MDI_Set_Execute_Command_Func_c(command_func, class_obj) bind(c, name="MDI_Set_Execute_Command_Func")
        USE ISO_C_BINDING
        TYPE(C_FUNPTR), VALUE, INTENT(IN)        :: command_func
-       INTEGER(KIND=C_INT)                      :: MDI_Set_Command_Func_c
-     END FUNCTION MDI_Set_Command_Func_c
+       TYPE(C_PTR), VALUE                       :: class_obj
+       INTEGER(KIND=C_INT)                      :: MDI_Set_Execute_Command_Func_c
+     END FUNCTION MDI_Set_Execute_Command_Func_c
 
      FUNCTION MDI_Get_Current_Code_() bind(c, name="MDI_Get_Current_Code")
        USE, INTRINSIC :: iso_c_binding
@@ -99,6 +100,29 @@
 
   END SUBROUTINE add_execute_command
 
+  ! Remove a value from the execute_command dictionary
+  SUBROUTINE remove_execute_command(key)
+    INTEGER, INTENT(IN)                      :: key
+    INTEGER                                  :: index
+    TYPE(command_func_ptr), ALLOCATABLE      :: temp_dict(:)
+
+    index = find_execute_command( key )
+
+    ! Store the execute_commands data in a temporary array
+    ALLOCATE( temp_dict( SIZE(execute_commands) ) )
+    temp_dict = execute_commands
+
+    ! Replace the deleted element with the last element
+    temp_dict(index) = temp_dict( SIZE(temp_dict) )
+      
+    ! Reallocate execute_commands to the correct size
+    DEALLOCATE( execute_commands )
+    ALLOCATE( execute_commands( SIZE(temp_dict) - 1 ) )
+    execute_commands(1:SIZE(execute_commands)) = temp_dict
+    DEALLOCATE( temp_dict )
+
+  END SUBROUTINE remove_execute_command
+
   FUNCTION MDI_Execute_Command_f(buf, comm) bind(c)
     CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: buf(COMMAND_LENGTH)
     INTEGER(KIND=C_INT), VALUE               :: comm
@@ -133,6 +157,11 @@
       WRITE(6,*)'MDI Error: Could not locate correct execute_command callback'
     END IF
     call execute_commands(i)%value(fbuf, commf, ierr)
+
+    ! If this is the EXIT command, delete all Fortran state associated with the code
+    IF ( TRIM(fbuf) .eq. "EXIT" ) THEN
+      CALL remove_execute_command( current_code )
+    END IF
 
     MDI_Execute_Command_f = ierr
 
@@ -245,11 +274,12 @@
        INTEGER(KIND=C_INT)                      :: MDI_Conversion_Factor_
      END FUNCTION MDI_Conversion_Factor_
 
-     SUBROUTINE MDI_Set_Command_Func(command_func, ierr)
+     SUBROUTINE MDI_Set_Execute_Command_Func(command_func, class_obj, ierr)
        USE MDI_INTERNAL
-       PROCEDURE(execute_command)               :: command_func
+       PROCEDURE(execute_command)               :: command_func 
+       TYPE(C_PTR), VALUE                       :: class_obj
        INTEGER, INTENT(OUT)                     :: ierr
-     END SUBROUTINE MDI_Set_Command_Func
+     END SUBROUTINE MDI_Set_Execute_Command_Func
 
   END INTERFACE
 
@@ -474,6 +504,7 @@
 
     SUBROUTINE MDI_Recv_Command(fbuf, comm, ierr)
       USE ISO_C_BINDING
+      USE MDI_INTERNAL, ONLY : MDI_Get_Current_Code_, remove_execute_command
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
@@ -482,7 +513,7 @@
       INTEGER, INTENT(IN)                      :: comm
       INTEGER, INTENT(OUT)                     :: ierr
 
-      INTEGER                                  :: i
+      INTEGER                                  :: i, current_code
       LOGICAL                                  :: end_string
       CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(MDI_COMMAND_LENGTH)
 
@@ -499,6 +530,12 @@
             fbuf(i:i) = cbuf(i)
          END IF
       ENDDO
+
+      ! If this is the EXIT command, delete all Fortran state associated with the code
+      IF ( TRIM(fbuf) .eq. "EXIT" ) THEN
+        current_code = MDI_Get_Current_Code_()
+        CALL remove_execute_command( current_code )
+      END IF
     END SUBROUTINE MDI_Recv_Command
 
     SUBROUTINE MDI_Conversion_Factor(fin_unit, fout_unit, factor, ierr)
@@ -538,20 +575,21 @@
 
 
 
-SUBROUTINE MDI_Set_Command_Func(command_func, ierr)
+SUBROUTINE MDI_Set_Execute_Command_Func(command_func, class_obj, ierr)
   USE MDI_INTERNAL
 
 #if MDI_WINDOWS
-    !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Set_Command_Func
-    !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Set_Command_Func
+    !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Set_Execute_Command_Func
+    !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Set_Execute_Command_Func
 #endif
     PROCEDURE(execute_command)               :: command_func
+    TYPE(C_PTR), VALUE                       :: class_obj
     INTEGER, INTENT(OUT)                     :: ierr
     INTEGER                                  :: current_code
 
     current_code = MDI_Get_Current_Code_()
 
     CALL add_execute_command(current_code, command_func)
-    ierr = MDI_Set_Command_Func_c( c_funloc(MDI_Execute_Command_f) )
+    ierr = MDI_Set_Execute_Command_Func_c( c_funloc(MDI_Execute_Command_f), class_obj )
 
-END SUBROUTINE MDI_Set_Command_Func
+END SUBROUTINE MDI_Set_Execute_Command_Func

@@ -32,4 +32,6 @@ int library_execute_command(MDI_Comm comm);
 int library_send(const void* buf, int count, MDI_Datatype datatype, MDI_Comm comm);
 int library_recv(void* buf, int count, MDI_Datatype datatype, MDI_Comm comm);
 
+int communicator_delete_lib(void* comm);
+
 #endif

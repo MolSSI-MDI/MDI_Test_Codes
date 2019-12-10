@@ -29,25 +29,8 @@ else:
 # Engine code
 ######################################################################
 
-exit_flag = False
-engine = None
-
-def execute_command(command, comm):
-    global exit_flag
-    global engine
-    #print("IN EXECUTE COMMAND")
-    #print("   COMMAND: " + str(command))
-
-    if command == "EXIT":
-        exit_flag = True
-    elif command == "<NATOMS":
-        if engine.world_rank == 0:
-            print("SUCCESS")
-        natoms = 123
-        mdi.MDI_Send(natoms, 1, mdi.MDI_INT, comm)
-    else:
-        raise Exception("Error in engine_py.py: MDI command not recognized")
-
+def execute_command_general(command, comm, class_obj):
+    class_obj.execute_command(command, comm)
     return 0
 
 class MDIEngine:
@@ -56,30 +39,32 @@ class MDIEngine:
         mdi.MDI_Init(mdi_options,mpi_comm)
         self.mpi_world = mpi_comm
         self.world_rank = 0
+        self.world_size = 1
         if use_mpi4py:
             self.mpi_world = mdi.MDI_Get_Intra_Code_MPI_Comm()
             self.world_rank = self.mpi_world.Get_rank()
-
-        # Should NOT call MDI_Accept_Communicator() from the engine
-        # Is there are way to confirm this?
-        #print("Accepting communicator")
-        #comm = mdi.MDI_Accept_Communicator()
-        #print("Accepted communicator: " + str(comm))
+            self.world_size = self.mpi_world.Get_size()
 
         # Set the generic execute_command function
-        if self.world_rank == 0:
-            print("Setting generic command")
-        mdi.MDI_Set_Command_Func(execute_command)
+        mdi.MDI_Set_Execute_Command_Func(execute_command_general, self)
 
-    #while not exit_flag:
-    #    if world_rank == 0:
-    #        command = mdi.MDI_Recv_Command(comm)
-    #    else:
-    #        command = None
-    #    if use_mpi4py:
-    #        command = mpi_world.bcast(command, root=0)
-    #
-    #    execute_command( command, comm )
+        self.exit_flag = False
+
+        # Set some dummy molecular properties
+        self.natoms = 10 * self.world_size
+        self.atoms = [ iatom * 1.1 for iatom in range( self.natoms ) ]
+
+    def execute_command(self, command, comm):
+        global exit_flag
+
+        if command == "EXIT":
+            exit_flag = True
+        elif command == "<NATOMS":
+            mdi.MDI_Send(self.natoms, 1, mdi.MDI_INT, comm)
+        else:
+            raise Exception("Error in engine_py.py: MDI command not recognized")
+
+        return 0
 
 
 ######################################################################
@@ -97,7 +82,9 @@ if use_mpi4py:
 else:
     world_rank = 0
     world_size = 0
-print("Start of driver")
+
+if world_rank == 0:
+    print("Start of driver")
 
 # Split the communicator into individual tasks
 color = 0
@@ -110,32 +97,34 @@ if use_mpi4py:
 else:
     mpi_task_comm = None
     task_rank = 0
+
 # Check if this connection uses the LIBRARY method
-#method = MDI_Get_Method(comm)
 method = mdi.MDI_LIB
 
-if method == mdi.MDI_LIB:
-    # Start the engine
-    engine = MDIEngine("-role ENGINE -name MM -method LIBRARY -driver_name driver", mpi_task_comm)
+niterations = 10
+for iiteration in range(niterations):
 
+    # Create and connect to a library instance that spans the MPI task communicator
+    MDIEngine("-role ENGINE -name MM -method LIBRARY -driver_name driver", mpi_task_comm)
+    comm = mdi.MDI_Accept_Communicator()
 
-# Connect to the driver
-#print("Accepting communicator")
-comm = mdi.MDI_Accept_Communicator()
-#print("Accepted communicator: " + str(comm))
+    # Create and connect to a library instance that spans MPI_COMM_WORLD
+    MDIEngine("-role ENGINE -name unsplit -method LIBRARY -driver_name driver", mpi_world)
+    comm_unsplit = mdi.MDI_Accept_Communicator()
 
-#mdi.MDI_Send_Command("EXIT", comm)
+    # Communicate with the library instance that spans the MPI task communicator
+    mdi.MDI_Send_Command("<NATOMS", comm)
+    natoms = mdi.MDI_Recv(1, mdi.MDI_INT, comm)
+    if world_rank == 0:
+        print("NATOMS: " + str(natoms))
+    mdi.MDI_Send_Command("EXIT", comm)
 
-mdi.MDI_Send_Command("<NATOMS", comm)
-natoms = mdi.MDI_Recv(1, mdi.MDI_INT, comm)
-print("NATOMS: " + str(natoms))
+    # Communicate with the library instance that spans MPI_COMM_WORLD
+    mdi.MDI_Send_Command("<NATOMS", comm_unsplit)
+    natoms = mdi.MDI_Recv(1, mdi.MDI_INT, comm_unsplit)
+    if world_rank == 0:
+        print("NATOMS: " + str(natoms))
+    mdi.MDI_Send_Command("EXIT", comm_unsplit)
 
-#mdi.MDI_Send_Command("<NATOMS", comm)
-#natoms = mdi.MDI_Recv(1, mdi.MDI_INT, comm)
-#print("NATOMS: " + str(natoms))
-
-#mdi.MDI_Send_Command("<NAME", comm)
-#engine_name = mdi.MDI_Recv(mdi.MDI_NAME_LENGTH, mdi.MDI_CHAR, comm)
-#print("NAME: " + str(engine_name))
 if use_mpi4py:
     mpi_world.Barrier()

@@ -28,6 +28,8 @@ typedef struct communicator_struct {
   int method;
   /*! \brief MPI_Comm handle that corresponds to this communicator */
   MDI_Comm_Type id;
+  /*! \brief Handle for the id of the associated code */
+  int code_id;
   /*! \brief For communicators using the TCP communicatiom method, the socket descriptor */
   int sockfd;
   /*! \brief For communicators using the MPI communicatiom method, the inter-code MPI 
@@ -42,6 +44,8 @@ typedef struct communicator_struct {
   vector* nodes;
   /*! \brief Method-specific information for this communicator */
   void* method_data;
+  /*! \brief Function pointer for method-specific deletion operations */
+  int (*delete)(void*);
 } communicator;
 
 typedef struct node_struct {
@@ -71,7 +75,9 @@ typedef struct code_struct {
   /*! \brief Vector containing all communicators associated with this code */
   vector* comms;
   /*! \brief Function pointer to the generic execute_command_function */
-  int (*execute_command)(const char*, MDI_Comm_Type);
+  int (*execute_command)(const char*, MDI_Comm_Type, void*);
+  /*! \brief Pointer to the class object that is passed to any call to execute_command */
+  void* execute_command_obj;
   /*! \brief Flag whether this code is being used as a library
   0: Not a library
   1: Is an ENGINE library, but has not connected to the driver
@@ -95,16 +101,24 @@ extern int is_initialized;
 int vector_init(vector* v, size_t stride);
 int vector_push_back(vector* v, void* element);
 void* vector_get(vector* v, int index);
+int vector_delete(vector* v, int index);
+int vector_free(vector* v);
 
 int get_node_index(vector* v, const char* node_name);
 int get_command_index(node* n, const char* command_name);
 int get_callback_index(node* n, const char* callback_name);
-
+int free_node_vector(vector* v);
 
 int new_communicator(int code_id, int method);
 communicator* get_communicator(int code_id, MDI_Comm_Type comm_id);
+int delete_communicator(int code_id, MDI_Comm_Type comm_id);
+
 int new_code();
 code* get_code(int code_id);
+int delete_code(int code_id);
+
+/*! \brief Dummy function for method-specific deletion operations for communicator deletion */
+int communicator_delete(void* comm);
 
 void mdi_error(const char* message);
 
