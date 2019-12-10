@@ -39,6 +39,22 @@ def test_cxx_cxx_lib():
     assert driver_err == ""
     assert driver_out == " Engine name: MM\n"
 
+def test_f90_f90_lib():
+    # get the name of the driver code, which includes a .exe extension on Windows
+    driver_name = glob.glob("../build/driver_lib_f90*")[0]
+
+    # run the calculation
+    driver_proc = subprocess.Popen([driver_name, "-mdi", "-role DRIVER -name driver -method LIBRARY"],
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    driver_tup = driver_proc.communicate()
+
+    # convert the driver's output into a string
+    driver_out = format_return(driver_tup[0])
+    driver_err = format_return(driver_tup[1])
+
+    assert driver_err == ""
+    assert driver_out == " Engine name: MM\n"
+
 def test_py_py_lib():
     # run the calculation
     driver_proc = subprocess.Popen([sys.executable, "../build/lib_py.py", "-mdi", "-role DRIVER -name driver -method LIBRARY"],

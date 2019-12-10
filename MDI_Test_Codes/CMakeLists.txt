@@ -7,6 +7,7 @@ endif()
 if ( use_Fortran )
    add_subdirectory(driver_f90)
    add_subdirectory(engine_f90)
+   add_subdirectory(lib_f90)
 
    # Fortran requires that the MPI stubs be compiled
    add_subdirectory(STUBS_MPI)
