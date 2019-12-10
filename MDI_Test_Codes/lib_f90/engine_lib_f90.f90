@@ -12,7 +12,9 @@ MODULE ENGINE_LIB_F90
 
 CONTAINS
 
-  SUBROUTINE engine_lib_f90_create()
+  SUBROUTINE engine_lib_f90_create(arg_in, world_comm_in)
+    CHARACTER(len=1024), INTENT(IN) :: arg_in
+    INTEGER, INTENT(IN)             :: world_comm_in
 
     INTEGER :: iarg, ierr
     INTEGER :: world_comm, world_rank
@@ -22,57 +24,22 @@ CONTAINS
 
     PROCEDURE(execute_command), POINTER :: general_command => null()
     TYPE(C_PTR)                         :: class_obj
+    arg = arg_in
+    world_comm = world_comm_in
     general_command => execute_command
 
     terminate_flag = .false.
 
     ALLOCATE( character(MDI_NAME_LENGTH) :: message )
 
-    ! Initialize the MPI environment
-    call MPI_INIT(ierr)
-
-    ! Read through all the command line options
-    iarg = 0
-    DO
-       CALL get_command_argument(iarg, arg)
-       IF (LEN_TRIM(arg) == 0) EXIT
-
-       IF (TRIM(arg) .eq. "-mdi") THEN
-          CALL get_command_argument(iarg + 1, mdi_options)
-
-          ! Initialize the MDI Library
-          world_comm = MPI_COMM_WORLD
-          CALL MDI_Init( mdi_options, world_comm, ierr)
-
-          EXIT
-       END IF
-
-       iarg = iarg + 1
-    END DO
+    ! Initialize MDI
+    CALL MDI_Init( arg, world_comm, ierr )
 
     ! Get the MPI rank within world_comm
     CALL MPI_Comm_rank( world_comm, world_rank, ierr )
 
     ! Set the generic execute_command function
     CALL MDI_Set_Execute_Command_Func(general_command, class_obj, ierr)
-
-    ! Connct to the driver
-    CALL MDI_Accept_Communicator(comm, ierr)
-
-    ! Respond to the driver's commands
-    response_loop: DO
-
-       CALL MDI_Recv_Command(message, comm, ierr)
-
-       CALL execute_command(message, comm, ierr)
-
-       IF ( terminate_flag ) EXIT
-
-    END DO response_loop
-
-    ! Synchronize all MPI ranks
-    CALL MPI_Barrier( world_comm, ierr )
-    CALL MPI_Finalize( ierr )
 
   END SUBROUTINE engine_lib_f90_create
 

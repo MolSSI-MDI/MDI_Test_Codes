@@ -148,7 +148,6 @@
         fbuf(i:i) = buf(i)
       END IF
     ENDDO
-    WRITE(6,*)"COMMAND: ",fbuf
 
     ! Get the correct execute_command callback
     current_code = MDI_Get_Current_Code_()

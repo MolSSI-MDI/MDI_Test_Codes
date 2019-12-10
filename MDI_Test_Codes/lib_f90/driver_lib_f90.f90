@@ -4,24 +4,13 @@ USE mpi
 USE ISO_C_binding
 USE mdi,              ONLY : MDI_Init, MDI_Send, MDI_CHAR, MDI_NAME_LENGTH, &
      MDI_Accept_Communicator, MDI_Send_Command, MDI_Recv, MDI_Conversion_Factor
+USE engine_lib_f90,   ONLY : engine_lib_f90_create
 
 IMPLICIT NONE
-
-   !INTEGER :: niter = 10000
-   !INTEGER :: mpi_ptr
-   !INTEGER :: world_comm, world_rank
-   !INTEGER :: i, ierr
-   !INTEGER :: comm_world, comm
-   !CHARACTER(len=:), ALLOCATABLE :: message
-   !CHARACTER(len=1024) :: arg
-   !CHARACTER(len=1024) :: mdi_options
-   !DOUBLE PRECISION :: initial_time, final_time
-   !DOUBLE PRECISION :: conversion_factor
-
    INTEGER :: iarg, ierr
    INTEGER :: world_comm, world_rank
    INTEGER :: comm
-   CHARACTER(len=1024) :: arg, mdi_options
+   CHARACTER(len=1024) :: arg, mdi_options, lib_arg
    CHARACTER(len=:), ALLOCATABLE :: message
 
    ALLOCATE( character(MDI_NAME_LENGTH) :: message )
@@ -50,6 +39,10 @@ IMPLICIT NONE
 
    ! Get the MPI rank within world_comm
    call MPI_Comm_rank( world_comm, world_rank, ierr );
+
+   ! Create an instance of the engine library
+   lib_arg = "-role ENGINE -name MM -method LIBRARY -driver_name driver"
+   call engine_lib_f90_create(lib_arg, world_comm)
 
    ! Connct to the engine
    call MDI_Accept_Communicator(comm, ierr)
