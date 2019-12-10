@@ -19,6 +19,12 @@ include_directories( ${CMAKE_BINARY_DIR} )
 link_directories( ${CMAKE_BINARY_DIR}/MDI_Test_Codes/lib_f90 )
 include_directories( ${CMAKE_BINARY_DIR}/MDI_Test_Codes/lib_f90 )
 
+# gfortran has trouble identifying windows, so use CMake to set the appropriate defines
+if(WIN32)
+  add_definitions(-DMDI_WINDOWS=1)
+else()
+  add_definitions(-DMDI_WINDOWS=0)
+endif()
 
 
 # ----------------------------------------------------------------------------------------------------

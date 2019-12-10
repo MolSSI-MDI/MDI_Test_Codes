@@ -13,6 +13,10 @@ MODULE ENGINE_LIB_F90
 CONTAINS
 
   SUBROUTINE engine_lib_f90_create(arg_in, world_comm_in)
+#if MDI_WINDOWS
+    !GCC$ ATTRIBUTES DLLEXPORT :: engine_lib_f90_create
+    !DEC$ ATTRIBUTES DLLEXPORT :: engine_lib_f90_create
+#endif
     CHARACTER(len=1024), INTENT(IN) :: arg_in
     INTEGER, INTENT(IN)             :: world_comm_in
 
