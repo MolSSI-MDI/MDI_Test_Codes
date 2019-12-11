@@ -112,7 +112,8 @@ def MDI_Get_Current_Code():
 # delete all Python state associated with the current code
 def delete_code_state():
     current_code = MDI_Get_Current_Code()
-    del execute_command_dict[current_code]
+    if current_code in execute_command_dict.keys():
+        del execute_command_dict[current_code]
 
 # MDI_Init
 mdi.MDI_Init.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_void_p]
@@ -340,8 +341,8 @@ def MDI_Recv_Command(arg2):
         presult = presult.decode('utf-8')
 
     # delete all state associated with this code
-    #if presult = "EXIT":
-    #    delete_code_state()
+    if presult == "EXIT":
+        delete_code_state()
 
     return presult
 
@@ -374,8 +375,8 @@ def MDI_Execute_Command_py(command, comm, class_obj):
     class_obj_real = execute_command_dict[current_code][1]
     ret = execute_command_dict[current_code][0](command_py, comm, class_obj_real)
 
-#    if command_py = "EXIT":
-#        delete_code_state()
+    if command_py == "EXIT":
+        delete_code_state()
     return ret
 
 # MDI_Set_Execute_Command_Func
