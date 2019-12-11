@@ -54,16 +54,23 @@
     INTEGER                                  :: find_execute_command
     INTEGER                                  :: index
 
+    ! Check if the execute_commands dictionary has been allocated
+    IF ( .not. ALLOCATED(execute_commands) ) THEN
+      find_execute_command = -1
+      RETURN
+    END IF
+
     index = 1
-    DO WHILE( (execute_commands(index)%key .ne. key) .and. (index .le. SIZE(execute_commands)) )
+    DO WHILE( (index .le. SIZE(execute_commands)) .and. (execute_commands(index)%key .ne. key) )
       index = index + 1
     END DO
 
-    IF ( execute_commands(index)%key .eq. key ) THEN
-      find_execute_command = index
-    ELSE
+    IF ( index .gt. SIZE(execute_commands) ) THEN
       find_execute_command = -1
+      RETURN
     END IF
+
+    find_execute_command = index
   END FUNCTION find_execute_command
 
   ! Add a value to the execute_command dictionary
@@ -107,6 +114,11 @@
     TYPE(command_func_ptr), ALLOCATABLE      :: temp_dict(:)
 
     index = find_execute_command( key )
+
+    ! Ensure that this key was actually found in the execute_command dictionary
+    IF ( index .eq. -1 ) THEN
+      RETURN
+    END IF
 
     ! Store the execute_commands data in a temporary array
     ALLOCATE( temp_dict( SIZE(execute_commands) ) )
