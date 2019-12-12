@@ -1062,7 +1062,7 @@ int get_node_info(MDI_Comm comm) {
     for (ichar = name_length; ichar < MDI_COMMAND_LENGTH; ichar++) {
       command_name[ichar] = '\0';
     }
-    printf("DRIVER COMMAND: %d %d %s\n",inode,name_length,command_name);
+    //printf("DRIVER COMMAND: %d %d %s\n",inode,name_length,command_name);
 
     if ( node_flag == 1 ) { // node
       // store the name of the current node
@@ -1075,10 +1075,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a command
     if ( name_start[stride - 1] == ';' ) {
-      printf("NODE\n");
+      //printf("NODE\n");
     }
     else if ( name_start[stride - 1] == ',' ) {
-      printf("COMMAND\n");
+      //printf("COMMAND\n");
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");
@@ -1099,7 +1099,7 @@ int get_node_info(MDI_Comm comm) {
   char* callbacks = malloc( count * sizeof(char) );
   MDI_Send_Command("<CALLBACKS",comm);
   MDI_Recv(callbacks, count, MDI_CHAR, comm);
-  printf("~~~CALLBACKS: %d %s\n",ncallbacks,callbacks);
+  //printf("~~~CALLBACKS: %d %s\n",ncallbacks,callbacks);
 
   // register the callbacks
   node_flag = 1;
@@ -1124,7 +1124,7 @@ int get_node_info(MDI_Comm comm) {
     for (ichar = name_length; ichar < MDI_COMMAND_LENGTH; ichar++) {
       callback_name[ichar] = '\0';
     }
-    printf("DRIVER CALLBACK: %d %d %s\n",inode,name_length,callback_name);
+    //printf("DRIVER CALLBACK: %d %d %s\n",inode,name_length,callback_name);
 
     if ( node_flag == 1 ) { // node
       // store the name of the current node
@@ -1137,10 +1137,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a callback
     if ( name_start[stride - 1] == ';' ) {
-      printf("NODE\n");
+      //printf("NODE\n");
     }
     else if ( name_start[stride - 1] == ',' ) {
-      printf("CALLBACK\n");
+      //printf("CALLBACK\n");
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");
