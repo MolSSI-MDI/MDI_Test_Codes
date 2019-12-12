@@ -50,12 +50,12 @@ CONTAINS
 
   FUNCTION str_c_to_f(cbuf, str_len)
     INTEGER                                  :: str_len
-    CHARACTER(LEN=str_len)                   :: fbuf
     CHARACTER(LEN=str_len)                   :: str_c_to_f
+    CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(str_len)
 
     INTEGER                                  :: i
     LOGICAL                                  :: end_string
-    CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(str_len)
+    CHARACTER(LEN=str_len)                   :: fbuf
 
     ! convert from C string to Fortran string
     fbuf = ""
@@ -70,6 +70,26 @@ CONTAINS
     ENDDO
     str_c_to_f = fbuf
   END FUNCTION str_c_to_f
+
+  FUNCTION str_f_to_c(fbuf, str_len)
+    INTEGER                                  :: str_len
+    CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: str_f_to_c(str_len)
+    CHARACTER(LEN=str_len)                   :: fbuf
+
+    INTEGER                                  :: i, count
+    CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(str_len)
+
+    count = LEN_TRIM(fbuf)
+    IF ( str_len .lt. count ) THEN
+      count = str_len
+    END IF
+
+    DO i = 1, count
+       cbuf(i) = fbuf(i:i)
+    END DO
+    cbuf( LEN_TRIM(fbuf) + 1 ) = c_null_char
+    str_f_to_c = cbuf
+  END FUNCTION str_f_to_c
 
   ! Return the index in execute_commands that corresponds to the key argument
   FUNCTION find_execute_command(key)
@@ -342,6 +362,7 @@ CONTAINS
 
     SUBROUTINE MDI_Send_s (fbuf, count, datatype, comm, ierr)
       USE ISO_C_BINDING
+      USE MDI_INTERNAL, ONLY : str_f_to_c
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Send_s
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Send_s
@@ -353,10 +374,7 @@ CONTAINS
       INTEGER                                  :: i
       CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(count)
 
-      DO i = 1, LEN_TRIM(fbuf)
-         cbuf(i) = fbuf(i:i)
-      END DO
-      cbuf( LEN_TRIM(fbuf) + 1 ) = c_null_char
+      cbuf = str_f_to_c(fbuf, count)
 
       ierr = MDI_Send_( c_loc(cbuf), count, datatype, comm)
     END SUBROUTINE MDI_Send_s
@@ -500,6 +518,7 @@ CONTAINS
 
     SUBROUTINE MDI_Send_Command(fbuf, comm, ierr)
       USE ISO_C_BINDING
+      USE MDI_INTERNAL, ONLY : str_f_to_c
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Send_Command
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Send_Command
@@ -511,10 +530,7 @@ CONTAINS
       INTEGER                                  :: i
       CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(MDI_COMMAND_LENGTH)
 
-      DO i = 1, LEN_TRIM(fbuf)
-         cbuf(i) = fbuf(i:i)
-      END DO
-      cbuf( LEN_TRIM(fbuf) + 1 ) = c_null_char
+       cbuf = str_f_to_c(fbuf, MDI_COMMAND_LENGTH)
 
       ierr = MDI_Send_Command_( c_loc(cbuf), comm)
     END SUBROUTINE MDI_Send_Command
