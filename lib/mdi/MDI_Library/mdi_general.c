@@ -601,7 +601,8 @@ int register_node(vector* node_vec, const char* node_name)
 {
   // confirm that the node_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(node_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    //mdi_error("Cannot register node name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error(node_name);
   }
 
   // confirm that this node is not already registered
@@ -643,7 +644,7 @@ int register_command(vector* node_vec, const char* node_name, const char* comman
 
   // confirm that the command_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(command_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot register command name with length greater than MDI_COMMAND_LENGTH");
   }
 
   // find the node
@@ -688,7 +689,7 @@ int register_callback(vector* node_vec, const char* node_name, const char* callb
 
   // confirm that the callback_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(callback_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot register callback name with length greater than MDI_COMMAND_LENGTH");
   }
 
   // find the node
