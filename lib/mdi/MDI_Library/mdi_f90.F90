@@ -1,13 +1,13 @@
-  MODULE MDI_GLOBAL
+MODULE MDI_GLOBAL
 
    USE ISO_C_BINDING
 
    INTEGER(KIND=C_INT), PARAMETER :: COMMAND_LENGTH = 12
    INTEGER(KIND=C_INT), PARAMETER :: NAME_LENGTH    = 12
 
-  END MODULE
+END MODULE
 
-  MODULE MDI_INTERNAL
+MODULE MDI_INTERNAL
   USE ISO_C_BINDING
   USE MDI_GLOBAL
 
@@ -46,7 +46,30 @@
 
   END INTERFACE
 
-  CONTAINS
+CONTAINS
+
+  FUNCTION str_c_to_f(cbuf, str_len)
+    INTEGER                                  :: str_len
+    CHARACTER(LEN=str_len)                   :: fbuf
+    CHARACTER(LEN=str_len)                   :: str_c_to_f
+
+    INTEGER                                  :: i
+    LOGICAL                                  :: end_string
+    CHARACTER(LEN=1, KIND=C_CHAR), TARGET    :: cbuf(str_len)
+
+    ! convert from C string to Fortran string
+    fbuf = ""
+    end_string = .false.
+    DO i = 1, str_len
+       IF ( cbuf(i) == c_null_char ) end_string = .true.
+       IF ( end_string ) THEN
+          fbuf(i:i) = ' '
+       ELSE
+          fbuf(i:i) = cbuf(i)
+       END IF
+    ENDDO
+    str_c_to_f = fbuf
+  END FUNCTION str_c_to_f
 
   ! Return the index in execute_commands that corresponds to the key argument
   FUNCTION find_execute_command(key)
@@ -150,16 +173,7 @@
     commf = comm
 
     ! convert from C string to Fortran string
-    fbuf = ""
-    end_string = .false.
-    DO i = 1, COMMAND_LENGTH
-      IF ( buf(i) == c_null_char ) end_string = .true.
-      IF ( end_string ) THEN
-        fbuf(i:i) = ' '
-      ELSE
-        fbuf(i:i) = buf(i)
-      END IF
-    ENDDO
+    fbuf = str_c_to_f(buf, COMMAND_LENGTH)
 
     ! Get the correct execute_command callback
     current_code = MDI_Get_Current_Code_()
@@ -178,7 +192,7 @@
 
   END FUNCTION MDI_Execute_Command_f
 
-  END MODULE
+END MODULE
 
 
 
@@ -186,7 +200,7 @@
 
 ! Fortran 90 wrapper for the MolSSI Driver Interface
 
-   MODULE MDI
+MODULE MDI
    USE ISO_C_BINDING
    USE MDI_GLOBAL
 
@@ -296,7 +310,7 @@
 
 
 
-  CONTAINS
+CONTAINS
 
     SUBROUTINE MDI_Init(foptions, fworld_comm, ierr)
       IMPLICIT NONE
@@ -406,6 +420,7 @@
     END SUBROUTINE MDI_Send_iv
 
     SUBROUTINE MDI_Recv_s (fbuf, count, datatype, comm, ierr)
+      USE MDI_INTERNAL, ONLY : str_c_to_f
       USE ISO_C_BINDING
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_s
@@ -422,16 +437,7 @@
       ierr = MDI_Recv_(c_loc(cbuf(1)), count, datatype, comm)
 
       ! convert from C string to Fortran string
-      fbuf = ""
-      end_string = .false.
-      DO i = 1, count
-         IF ( cbuf(i) == c_null_char ) end_string = .true.
-         IF ( end_string ) THEN
-            fbuf(i:i) = ' '
-         ELSE
-            fbuf(i:i) = cbuf(i)
-         END IF
-      ENDDO
+       fbuf = str_c_to_f(cbuf, count)
     END SUBROUTINE MDI_Recv_s
 
     SUBROUTINE MDI_Recv_d (fbuf, count, datatype, comm, ierr)
@@ -515,7 +521,7 @@
 
     SUBROUTINE MDI_Recv_Command(fbuf, comm, ierr)
       USE ISO_C_BINDING
-      USE MDI_INTERNAL, ONLY : MDI_Get_Current_Code_, remove_execute_command
+      USE MDI_INTERNAL, ONLY : MDI_Get_Current_Code_, remove_execute_command, str_c_to_f
 #if MDI_WINDOWS
       !GCC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
       !DEC$ ATTRIBUTES DLLEXPORT :: MDI_Recv_Command
@@ -531,16 +537,7 @@
       ierr = MDI_Recv_Command_(c_loc(cbuf(1)), comm)
 
       ! convert from C string to Fortran string
-      fbuf = ""
-      end_string = .false.
-      DO i = 1, MDI_COMMAND_LENGTH
-         IF ( cbuf(i) == c_null_char ) end_string = .true.
-         IF ( end_string ) THEN
-            fbuf(i:i) = ' '
-         ELSE
-            fbuf(i:i) = cbuf(i)
-         END IF
-      ENDDO
+      fbuf = str_c_to_f(cbuf, MDI_COMMAND_LENGTH)
 
       ! If this is the EXIT command, delete all Fortran state associated with the code
       IF ( TRIM(fbuf) .eq. "EXIT" ) THEN
@@ -580,7 +577,7 @@
 
 
 
-  END MODULE
+END MODULE
 
 
 
