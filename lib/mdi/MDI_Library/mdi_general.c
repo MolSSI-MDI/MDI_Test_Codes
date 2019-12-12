@@ -987,9 +987,10 @@ int get_node_info(MDI_Comm comm) {
   char* current_node = malloc( MDI_COMMAND_LENGTH * sizeof(char) );
 
   // get the number of nodes
-  size_t nnodes;
+  int nnodes_int;
   MDI_Send_Command("<NNODES",comm);
-  MDI_Recv(&nnodes, 1, MDI_INT, comm);
+  MDI_Recv(&nnodes_int, 1, MDI_INT, comm);
+  size_t nnodes = nnodes_int;
 
   // get the nodes
   size_t list_size = nnodes * stride * sizeof(char);
@@ -1076,10 +1077,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a command
     if ( name_start[stride - 1] == ';' ) {
-      //printf("NODE\n");
+      node_flag = 1;
     }
     else if ( name_start[stride - 1] == ',' ) {
-      //printf("COMMAND\n");
+      node_flag = 0;
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");
@@ -1138,10 +1139,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a callback
     if ( name_start[stride - 1] == ';' ) {
-      //printf("NODE\n");
+      node_flag = 1;
     }
     else if ( name_start[stride - 1] == ',' ) {
-      //printf("CALLBACK\n");
+      node_flag = 0;
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");
