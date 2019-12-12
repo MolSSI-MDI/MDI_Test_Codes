@@ -4,7 +4,7 @@ PROGRAM ENGINE_F90
   USE ISO_C_binding
   USE mdi,              ONLY : MDI_Init, MDI_Send, MDI_INT, MDI_CHAR, MDI_NAME_LENGTH, &
        MDI_Accept_Communicator, MDI_Recv_Command, MDI_Recv, MDI_Conversion_Factor, &
-       MDI_Set_Execute_Command_Func
+       MDI_Set_Execute_Command_Func, MDI_Register_Node, MDI_Register_Command
 
   IMPLICIT NONE
 
@@ -48,6 +48,11 @@ PROGRAM ENGINE_F90
 
    ! Get the MPI rank within world_comm
    CALL MPI_Comm_rank( world_comm, world_rank, ierr )
+
+   ! Register the commands
+   CALL MDI_Register_Node("@GLOBAL", ierr)
+   CALL MDI_Register_Command("@GLOBAL", "EXIT", ierr)
+   CALL MDI_Register_Command("@GLOBAL", "<NATOMS", ierr)
 
    ! Set the generic execute_command function
    CALL MDI_Set_Execute_Command_Func(generic_command, class_obj, ierr)

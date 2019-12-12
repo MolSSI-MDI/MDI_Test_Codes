@@ -47,6 +47,11 @@ if use_mpi4py:
 else:
     world_rank = 0
 
+# Register the supported commands
+mdi.MDI_Register_Node("@GLOBAL")
+mdi.MDI_Register_Command("@GLOBAL","EXIT")
+mdi.MDI_Register_Command("@GLOBAL","<NATOMS")
+
 # Set the generic execute_command function
 mdi.MDI_Set_Execute_Command_Func(execute_command, None)
 
