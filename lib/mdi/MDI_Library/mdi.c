@@ -690,7 +690,7 @@ int MDI_Check_Node_Exists(const char* node_name, MDI_Comm comm, int* flag)
   if ( strlen(node_name) > COMMAND_LENGTH ) {
     mdi_error("Node name is greater than MDI_COMMAND_LENGTH");
   }
-  /*vector* node_vec = get_node_vector(comm);
+  vector* node_vec = get_node_vector(comm);
 
   // find the node
   int node_index = get_node_index(node_vec, node_name);
@@ -699,10 +699,7 @@ int MDI_Check_Node_Exists(const char* node_name, MDI_Comm comm, int* flag)
   }
   else {
     *flag = 1;
-  }*/
-  ///////////
-  *flag = 1;
-  ///////////
+  }
   return 0;
 }
 
