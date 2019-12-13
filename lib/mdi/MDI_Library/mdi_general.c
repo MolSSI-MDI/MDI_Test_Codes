@@ -1175,9 +1175,17 @@ vector* get_node_vector(MDI_Comm comm) {
   vector* node_vec;
   code* this_code = get_code(current_code);
   if ( comm == MDI_NULL_COMM ) {
+    /////////////
+    mdi_error("TEMP: NULL_COMM");
+    /////////////
     node_vec = this_code->nodes;
   }
   else {
+    /////////////
+    if ( this_code->comms->size <= 0 ) {
+      mdi_error("GNV: Code has no comms");
+    }
+    /////////////
     communicator* this = get_communicator(current_code, comm);
     if ( this->nodes->size == 0 ) {
       // acquire node information for this communicator
