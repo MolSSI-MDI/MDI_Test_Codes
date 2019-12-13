@@ -794,7 +794,7 @@ int MDI_Check_Command_Exists(const char* node_name, const char* command_name, MD
 
   // confirm that the command_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(command_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot chcek command name with length greater than MDI_COMMAND_LENGTH");
   }
 
   vector* node_vec = get_node_vector(comm);
@@ -936,7 +936,7 @@ int MDI_Check_Callback_Exists(const char* node_name, const char* callback_name, 
 
   // confirm that the callback_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(callback_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot check callback name with length greater than MDI_COMMAND_LENGTH");
   }
 
   vector* node_vec = get_node_vector(comm);

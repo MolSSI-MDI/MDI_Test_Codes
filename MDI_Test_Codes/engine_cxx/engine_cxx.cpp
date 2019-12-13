@@ -58,6 +58,11 @@ int main(int argc, char **argv) {
     throw std::runtime_error("The -mdi command line option was not provided.");
   }
 
+  // Set the list of supported commands
+  MDI_Register_Node("@GLOBAL");
+  MDI_Register_Command("@GLOBAL","EXIT");
+  MDI_Register_Command("@GLOBAL","<NATOMS");
+
   // Create the execute_command pointer
   int (*generic_command)(const char*, MDI_Comm, void*) = execute_command;
   void* engine_obj;

@@ -601,7 +601,8 @@ int register_node(vector* node_vec, const char* node_name)
 {
   // confirm that the node_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(node_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    //mdi_error("Cannot register node name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error(node_name);
   }
 
   // confirm that this node is not already registered
@@ -643,7 +644,7 @@ int register_command(vector* node_vec, const char* node_name, const char* comman
 
   // confirm that the command_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(command_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot register command name with length greater than MDI_COMMAND_LENGTH");
   }
 
   // find the node
@@ -688,7 +689,7 @@ int register_callback(vector* node_vec, const char* node_name, const char* callb
 
   // confirm that the callback_name size is not greater than MDI_COMMAND_LENGTH
   if ( strlen(callback_name) > COMMAND_LENGTH ) {
-    mdi_error("Cannot register name with length greater than MDI_COMMAND_LENGTH");
+    mdi_error("Cannot register callback name with length greater than MDI_COMMAND_LENGTH");
   }
 
   // find the node
@@ -986,9 +987,10 @@ int get_node_info(MDI_Comm comm) {
   char* current_node = malloc( MDI_COMMAND_LENGTH * sizeof(char) );
 
   // get the number of nodes
-  size_t nnodes;
+  int nnodes_int;
   MDI_Send_Command("<NNODES",comm);
-  MDI_Recv(&nnodes, 1, MDI_INT, comm);
+  MDI_Recv(&nnodes_int, 1, MDI_INT, comm);
+  size_t nnodes = nnodes_int;
 
   // get the nodes
   size_t list_size = nnodes * stride * sizeof(char);
@@ -1062,7 +1064,7 @@ int get_node_info(MDI_Comm comm) {
     for (ichar = name_length; ichar < MDI_COMMAND_LENGTH; ichar++) {
       command_name[ichar] = '\0';
     }
-    printf("DRIVER COMMAND: %d %d %s\n",inode,name_length,command_name);
+    //printf("DRIVER COMMAND: %d %d %s\n",inode,name_length,command_name);
 
     if ( node_flag == 1 ) { // node
       // store the name of the current node
@@ -1075,10 +1077,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a command
     if ( name_start[stride - 1] == ';' ) {
-      printf("NODE\n");
+      node_flag = 1;
     }
     else if ( name_start[stride - 1] == ',' ) {
-      printf("COMMAND\n");
+      node_flag = 0;
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");
@@ -1099,7 +1101,7 @@ int get_node_info(MDI_Comm comm) {
   char* callbacks = malloc( count * sizeof(char) );
   MDI_Send_Command("<CALLBACKS",comm);
   MDI_Recv(callbacks, count, MDI_CHAR, comm);
-  printf("~~~CALLBACKS: %d %s\n",ncallbacks,callbacks);
+  //printf("~~~CALLBACKS: %d %s\n",ncallbacks,callbacks);
 
   // register the callbacks
   node_flag = 1;
@@ -1124,7 +1126,7 @@ int get_node_info(MDI_Comm comm) {
     for (ichar = name_length; ichar < MDI_COMMAND_LENGTH; ichar++) {
       callback_name[ichar] = '\0';
     }
-    printf("DRIVER CALLBACK: %d %d %s\n",inode,name_length,callback_name);
+    //printf("DRIVER CALLBACK: %d %d %s\n",inode,name_length,callback_name);
 
     if ( node_flag == 1 ) { // node
       // store the name of the current node
@@ -1137,10 +1139,10 @@ int get_node_info(MDI_Comm comm) {
 
     // determine whether the next name is for a node or a callback
     if ( name_start[stride - 1] == ';' ) {
-      printf("NODE\n");
+      node_flag = 1;
     }
     else if ( name_start[stride - 1] == ',' ) {
-      printf("CALLBACK\n");
+      node_flag = 0;
     }
     else {
       mdi_error("Error obtaining node information: could not parse delimiter");

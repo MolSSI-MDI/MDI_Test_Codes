@@ -45,6 +45,21 @@ int main(int argc, char **argv) {
   MDI_Comm comm;
   MDI_Accept_Communicator(&comm);
 
+  /*
+  // Confirm that the engine has the @GLOBAL node
+  int exists;
+  MDI_Check_Node_Exists("@GLOBAL", comm, &exists);
+  if ( exists != 1 ) {
+    throw std::runtime_error("The engine does not have the @GLOBAL node.");
+  }
+
+  // Confirm that the engine supports the EXIT command
+  MDI_Check_Command_Exists("@GLOBAL", "EXIT", comm, &exists);
+  if ( exists != 1 ) {
+    throw std::runtime_error("The engine does not support the EXIT command.");
+  }
+  */
+
   // Determine the name of the engine
   char* engine_name = new char[MDI_NAME_LENGTH];
   MDI_Send_Command("<NAME", comm);

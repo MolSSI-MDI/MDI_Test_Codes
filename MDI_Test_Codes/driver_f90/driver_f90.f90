@@ -3,7 +3,8 @@ PROGRAM DRIVER_F90
 USE mpi
 USE ISO_C_binding
 USE mdi,              ONLY : MDI_Init, MDI_Send, MDI_CHAR, MDI_NAME_LENGTH, &
-     MDI_Accept_Communicator, MDI_Send_Command, MDI_Recv, MDI_Conversion_Factor
+     MDI_Accept_Communicator, MDI_Send_Command, MDI_Recv, MDI_Conversion_Factor, &
+     MDI_Check_Node_Exists, MDI_Check_Command_Exists
 
 IMPLICIT NONE
 
@@ -18,7 +19,7 @@ IMPLICIT NONE
    !DOUBLE PRECISION :: initial_time, final_time
    !DOUBLE PRECISION :: conversion_factor
 
-   INTEGER :: iarg, ierr
+   INTEGER :: iarg, ierr, exists
    INTEGER :: world_comm, world_rank
    INTEGER :: comm
    CHARACTER(len=1024) :: arg, mdi_options
@@ -53,6 +54,18 @@ IMPLICIT NONE
 
    ! Connct to the engine
    call MDI_Accept_Communicator(comm, ierr)
+
+   ! Confirm that the engine has the @GLOBAL node
+   !CALL MDI_Check_Node_Exists("@GLOBAL", comm, exists, ierr)
+   !IF ( exists .ne. 1 ) THEN
+   !   WRITE(6,*)'ERROR: Engine does not have @GLOBAL node'
+   !END IF
+
+   ! Confirm that the engine supports the EXIT command
+   !CALL MDI_Check_Command_Exists("@GLOBAL", "EXIT", comm, exists, ierr)
+   !IF ( exists .ne. 1 ) THEN
+   !   WRITE(6,*)'ERROR: Engine does not support the EXIT command'
+   !END IF
 
    ! Determine the name of the engine
    call MDI_Send_Command("<NAME", comm, ierr)
