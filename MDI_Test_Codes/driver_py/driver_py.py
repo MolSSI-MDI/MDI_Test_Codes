@@ -48,8 +48,8 @@ if ( not mdi.MDI_Check_Node_Exists("@GLOBAL",comm) ):
     raise Exception("Engine does not have the @GLOBAL node")
 
 # Check if the engine supports the EXIT command
-if ( not mdi.MDI_Check_Command_Exists("@GLOBAL","EXIT",comm) ):
-    raise Exception("Engine does not support the EXIT command")
+#if ( not mdi.MDI_Check_Command_Exists("@GLOBAL","EXIT",comm) ):
+#    raise Exception("Engine does not support the EXIT command")
 
 # Send the "EXIT" command to the engine
 mdi.MDI_Send_Command("EXIT", comm)
