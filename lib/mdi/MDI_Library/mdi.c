@@ -1116,7 +1116,7 @@ int MDI_Get_Current_Code() {
  * \param [in]       mpi4py_recv
  *                   Function pointer to the mpi4py_recv callback
  */
-int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, MDI_Comm)) {
+int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, int, MDI_Comm)) {
   //this_code->execute_command = generic_command;
   //this_code->execute_command_obj = class_object;
   mpi4py_recv_callback = mpi4py_recv;
@@ -1131,7 +1131,7 @@ int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, MDI_Comm)) 
  * \param [in]       mpi4py_send
  *                   Function pointer to the mpi4py_send callback
  */
-int MDI_Set_Mpi4py_Send_Callback(int (*mpi4py_send)(void*, int, int, MDI_Comm)) {
+int MDI_Set_Mpi4py_Send_Callback(int (*mpi4py_send)(void*, int, int, int, MDI_Comm)) {
   mpi4py_send_callback = mpi4py_send;
   return 0;
 }
@@ -1157,7 +1157,7 @@ int MDI_Set_Mpi4py_Gather_Names_Callback(int (*mpi4py_gather_names)(void*, void*
  * \param [in]       mpi4py_split
  *                   Function pointer to the mpi4py_split callback
  */
-int MDI_Set_Mpi4py_Split_Callback(int (*mpi4py_split)(int, int)) {
+int MDI_Set_Mpi4py_Split_Callback(int (*mpi4py_split)(int, int, MDI_Comm, int)) {
   mpi4py_split_callback = mpi4py_split;
   return 0;
 }

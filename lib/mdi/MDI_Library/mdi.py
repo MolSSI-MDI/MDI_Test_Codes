@@ -67,10 +67,14 @@ MDI_EV_TO_HARTREE = ctypes.c_double.in_dll(mdi, "MDI_EV_TO_HARTREE").value
 MDI_RYDBERG_TO_HARTREE = ctypes.c_double.in_dll(mdi, "MDI_RYDBERG_TO_HARTREE").value
 MDI_KELVIN_TO_HARTREE = ctypes.c_double.in_dll(mdi, "MDI_KELVIN_TO_HARTREE").value
 
+world_comm = None
 
 intra_code_comm = None
 
 mdi_manager = None
+
+# dictionary of mpi4py communicators
+mpi4py_comms = {}
 
 # dictionary of function callbacks
 execute_command_dict = {}
@@ -127,21 +131,38 @@ def delete_code_state():
 
 # define the type of the callback function
 mpi4py_recv_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
-                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+#                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+                                         ctypes.POINTER(ctypes.c_byte), # buf (ctypes.c_void_p?)
                                          ctypes.c_int, # count
                                          ctypes.c_int, # datatype
-                                         ctypes.c_int) # comm
+                                         ctypes.c_int, # source
+                                         ctypes.c_int) # mdi_comm
 
 # define the c function that allows the callback function to be set
 mdi.MDI_Set_Mpi4py_Recv_Callback.restype = ctypes.c_int
 mdi.MDI_Set_Mpi4py_Recv_Callback.argtypes = [mpi4py_recv_func_type]
 
 # define the python callback function
-def mpi4py_recv_callback(buf, count, datatype, mdi_comm):
-    print("Start of python callback")
-    nparray = np.ctypeslib.as_array(buf, shape=[count])
-    #nparray[3] = '_'
-    print("nparray: " + str(nparray))
+def mpi4py_recv_callback(buf, count, datatype, source, mdi_comm):
+
+    # determine the data type
+    if datatype == MDI_INT_NUMPY or datatype == MDI_INT:
+        mpi_type = MPI.INT
+        datasize = ctypes.sizeof( ctypes.c_int )
+    elif datatype == MDI_DOUBLE_NUMPY or datatype == MDI_DOUBLE:
+        mpi_type = MPI.DOUBLE
+        datasize = ctypes.sizeof( ctypes.c_double )
+    elif datatype == MDI_CHAR:
+        mpi_type = MPI.CHAR
+        datasize = ctypes.sizeof( ctypes.c_char )
+    else:
+        raise Exception("MDI Error: MDI type not recognized")
+
+    # get a numpy representation of the data
+    nparray = np.ctypeslib.as_array(buf, shape=[ count * datasize ])
+
+    comm = mpi4py_comms[mdi_comm]
+    comm.Recv([nparray, mpi_type], source=source)
     return 0
 
 # define the python function that will set the callback function in c
@@ -156,20 +177,39 @@ def set_mpi4py_recv_callback():
 
 # define the type of the callback function
 mpi4py_send_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
-                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+#                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+                                         ctypes.POINTER(ctypes.c_byte), # buf (ctypes.c_void_p?)
                                          ctypes.c_int, # count
                                          ctypes.c_int, # datatype
-                                         ctypes.c_int) # comm
+                                         ctypes.c_int, # destination
+                                         ctypes.c_int) # mdi_comm
 
 # define the c function that allows the callback function to be set
 mdi.MDI_Set_Mpi4py_Send_Callback.restype = ctypes.c_int
 mdi.MDI_Set_Mpi4py_Send_Callback.argtypes = [mpi4py_send_func_type]
 
 # define the python callback function
-def mpi4py_send_callback(buf, count, datatype, mdi_comm):
-    print("Start of python callback")
-    nparray = np.ctypeslib.as_array(buf, shape=[count])
-    print("nparray: " + str(nparray))
+def mpi4py_send_callback(buf, count, datatype, destination, mdi_comm):
+    global mpi4py_comms
+
+    # determine the data type
+    if datatype == MDI_INT_NUMPY or datatype == MDI_INT:
+        mpi_type = MPI.INT
+        datasize = ctypes.sizeof( ctypes.c_int )
+    elif datatype == MDI_DOUBLE_NUMPY or datatype == MDI_DOUBLE:
+        mpi_type = MPI.DOUBLE
+        datasize = ctypes.sizeof( ctypes.c_double )
+    elif datatype == MDI_CHAR:
+        mpi_type = MPI.CHAR
+        datasize = ctypes.sizeof( ctypes.c_char )
+    else:
+        raise Exception("MDI Error: MDI type not recognized")
+
+    # get a numpy representation of the data
+    nparray = np.ctypeslib.as_array(buf, shape=[ count * datasize ])
+
+    comm = mpi4py_comms[mdi_comm]
+    comm.Send([nparray, mpi_type], dest=destination)
     return 0
 
 # define the python function that will set the callback function in c
@@ -177,6 +217,190 @@ mpi4py_send_callback_c = mpi4py_send_func_type( mpi4py_send_callback )
 def set_mpi4py_send_callback():
     global mpi4py_send_callback_c
     mdi.MDI_Set_Mpi4py_Send_Callback( mpi4py_send_callback_c )
+
+##################################################
+# MPI4Py Size Callback                           #
+##################################################
+
+# define the type of the callback function
+mpi4py_size_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.c_int) # comm_flag
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Size_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Size_Callback.argtypes = [mpi4py_size_func_type]
+
+# define the python callback function
+def mpi4py_size_callback(comm_flag):
+    global world_comm
+    global intra_code_comm
+
+    # get the correct communicator, based on the comm_flag
+    if comm_flag == 0: # use world_comm
+        comm = world_comm
+    elif comm_flag == 1: # use the code intra_comm
+        comm = intra_code_comm
+    else:
+        raise Exception("MDI Error: Unknown comm flag in mpi4py_size_callback")
+
+    if comm:
+        return comm.Get_size()
+    else:
+        raise Exception("MDI Error: Unable to find mpi communicator in mpi4py_size_callback")
+
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_size_callback_c = mpi4py_size_func_type( mpi4py_size_callback )
+def set_mpi4py_size_callback():
+    global mpi4py_size_callback_c
+    mdi.MDI_Set_Mpi4py_Size_Callback( mpi4py_size_callback_c )
+
+##################################################
+# MPI4Py Rank Callback                           #
+##################################################
+
+# define the type of the callback function
+mpi4py_rank_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.c_int) # comm_flag
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Rank_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Rank_Callback.argtypes = [mpi4py_rank_func_type]
+
+# define the python callback function
+def mpi4py_rank_callback(comm_flag):
+    global world_comm
+    global intra_code_comm
+
+    # get the correct communicator, based on the comm_flag
+    if comm_flag == 0: # use world_comm
+        comm = world_comm
+    elif comm_flag == 1: # use the code intra_comm
+        comm = intra_code_comm
+    else:
+        raise Exception("MDI Error: Unknown comm flag in mpi4py_rank_callback")
+
+    if comm:
+        return comm.Get_rank()
+    else:
+        raise Exception("MDI Error: Unable to find mpi communicator in mpi4py_rank_callback")
+
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_rank_callback_c = mpi4py_rank_func_type( mpi4py_rank_callback )
+def set_mpi4py_rank_callback():
+    global mpi4py_rank_callback_c
+    mdi.MDI_Set_Mpi4py_Rank_Callback( mpi4py_rank_callback_c )
+
+##################################################
+# MPI4Py Gather Names Callback                   #
+##################################################
+
+# define the type of the callback function
+mpi4py_gather_names_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.POINTER(ctypes.c_char), # buf
+                                         ctypes.POINTER(ctypes.c_char)) # names
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Gather_Names_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Gather_Names_Callback.argtypes = [mpi4py_gather_names_func_type]
+
+# define the python callback function
+def mpi4py_gather_names_callback(buf, names):
+    global world_comm
+    world_size = world_comm.Get_size()
+
+    # Create numpy arrays from the C pointers
+    buf_np = np.ctypeslib.as_array(buf, shape=[MDI_NAME_LENGTH])
+    names_np = np.ctypeslib.as_array(names, shape=[MDI_NAME_LENGTH * world_size])
+
+    # Gather the names
+    world_comm.Allgather([buf_np, MPI.CHAR], [names_np, MPI.CHAR])
+
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_gather_names_callback_c = mpi4py_gather_names_func_type( mpi4py_gather_names_callback )
+def set_mpi4py_gather_names_callback():
+    global mpi4py_gather_names_callback_c
+    mdi.MDI_Set_Mpi4py_Gather_Names_Callback( mpi4py_gather_names_callback_c )
+
+##################################################
+# MPI4Py Barrier Callback                        #
+##################################################
+
+# define the type of the callback function
+mpi4py_barrier_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.c_int) # comm_flag
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Barrier_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Barrier_Callback.argtypes = [mpi4py_barrier_func_type]
+
+# define the python callback function
+def mpi4py_barrier_callback(comm_flag):
+    global world_comm
+    global intra_code_comm
+
+    # get the correct communicator, based on the comm_flag
+    if comm_flag == 0: # use world_comm
+        comm = world_comm
+    elif comm_flag == 1: # use the code intra_comm
+        comm = intra_code_comm
+    else:
+        raise Exception("MDI Error: Unknown comm flag in mpi4py_barrier_callback")
+
+    if comm:
+        comm.Barrier()
+    else:
+        raise Exception("MDI Error: Unable to find mpi communicator in mpi4py_barrier_callback")
+
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_barrier_callback_c = mpi4py_barrier_func_type( mpi4py_barrier_callback )
+def set_mpi4py_barrier_callback():
+    global mpi4py_barrier_callback_c
+    mdi.MDI_Set_Mpi4py_Barrier_Callback( mpi4py_barrier_callback_c )
+
+##################################################
+# MPI4Py Split Callback                          #
+##################################################
+
+# define the type of the callback function
+mpi4py_split_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.c_int, # color
+                                         ctypes.c_int, # key
+                                         ctypes.c_int, # mdi_comm
+                                         ctypes.c_int) # comm_flag
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Split_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Split_Callback.argtypes = [mpi4py_split_func_type]
+
+# define the python callback function
+def mpi4py_split_callback(color, key, mdi_comm, comm_flag):
+    global world_comm
+    global intra_code_comm
+
+    # get the correct communicator, based on the comm_flag
+    if comm_flag == 0: # create an inter-code communicator
+        mpi4py_comms[mdi_comm] = world_comm.Split(color, key)
+    elif comm_flag == 1: # create an intra-code communicator
+        intra_code_comm = world_comm.Split(color, key)
+    else:
+        raise Exception("MDI Error: Unknown comm flag in mpi4py_split_callback")
+
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_split_callback_c = mpi4py_split_func_type( mpi4py_split_callback )
+def set_mpi4py_split_callback():
+    global mpi4py_split_callback_c
+    mdi.MDI_Set_Mpi4py_Split_Callback( mpi4py_split_callback_c )
+
 
 
 #########################################################
@@ -190,6 +414,7 @@ def set_mpi4py_send_callback():
 mdi.MDI_Init.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_void_p]
 mdi.MDI_Init.restype = ctypes.c_int
 def MDI_Init(arg1, comm):
+    global world_comm
     global intra_code_comm
     global mdi_manager
 
@@ -201,6 +426,7 @@ def MDI_Init(arg1, comm):
         mpi_communicator_ptr = None
     else:
         if use_mpi4py:
+            world_comm = comm
             intra_code_comm = comm
             mpi_communicator = MPI._addressof(comm)
             mpi_communicator_ptr = ctypes.c_void_p(mpi_communicator)
@@ -224,22 +450,28 @@ def MDI_Init(arg1, comm):
 
     # set the MPI4Py callback functions
     set_mpi4py_recv_callback()
-    
+    set_mpi4py_send_callback()
+    set_mpi4py_size_callback()
+    set_mpi4py_rank_callback()
+    set_mpi4py_gather_names_callback()
+    set_mpi4py_barrier_callback()
+    set_mpi4py_split_callback()
+
     # if the communication method is MPI, assign the names of the codes
-    if mdi_method == "MPI":
+#    if mdi_method == "MPI":
 
         # initialize a new code object
-        new_code = MDI_Initialize_New_Code()
-        MDI_Set_Current_Code(new_code)
+#        new_code = MDI_Initialize_New_Code()
+#        MDI_Set_Current_Code(new_code)
 
-        mdi_manager = MPI4PYManager(arg1, comm)
+#        mdi_manager = MPI4PYManager(arg1, comm)
 
-        return 0
+#        return 0
 
-    else:
+#    else:
 
-        # call MDI_Init
-        ret = mdi.MDI_Init(ctypes.c_char_p(command), mpi_communicator_ptr )
+    # call MDI_Init
+    ret = mdi.MDI_Init(ctypes.c_char_p(command), mpi_communicator_ptr )
 
     return ret
 

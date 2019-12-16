@@ -250,6 +250,7 @@ int general_init(const char* options, void* world_comm) {
   // determine whether the intra-code MPI communicator should be split by mpi_init_mdi
   int do_split = 1;
   if ( strcmp(language, "Python") == 0 ) {
+    this_code->is_python = 1;
     do_split = 0;
   }
 
@@ -335,19 +336,6 @@ int general_init(const char* options, void* world_comm) {
 
   free( argv_line );
   free( argv );
-
-  /////////////////////
-  // test numpy return buffer
-  char* buf = malloc( MDI_COMMAND_LENGTH * sizeof(char) );
-  strcpy(buf,"Hello");
-  mpi4py_recv_callback(buf, MDI_COMMAND_LENGTH, MDI_CHAR, 0);
-  printf("C Return: %s\n",buf);
-
-  int* ibuf = malloc( MDI_COMMAND_LENGTH * sizeof(char) );
-  ibuf[0] = 1;
-  mpi4py_recv_callback(ibuf, MDI_COMMAND_LENGTH, MDI_INT, 0);
-  printf("C Return: %d\n",ibuf[0]);
-  /////////////////////
 
   return 0;
 }
