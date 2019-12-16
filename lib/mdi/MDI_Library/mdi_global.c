@@ -24,6 +24,24 @@ int is_initialized = 0;
 /*! \brief Python callback pointer for MPI_Recv */
 int (*mpi4py_recv_callback)(void*, int, int, MDI_Comm_Type);
 
+/*! \brief Python callback pointer for MPI_Send */
+int (*mpi4py_send_callback)(void*, int, int, MDI_Comm_Type);
+
+/*! \brief Python callback pointer for gathering names */
+int (*mpi4py_gather_names_callback)(void*, void*);
+
+/*! \brief Python callback pointer for MPI_Comm_split */
+int (*mpi4py_split_callback)(int, int);
+
+/*! \brief Python callback pointer for MPI_Comm_rank */
+int (*mpi4py_rank_callback)(int);
+
+/*! \brief Python callback pointer for MPI_Comm_size */
+int (*mpi4py_size_callback)(int);
+
+/*! \brief Python callback pointer for MPI_Comm_barrier */
+int (*mpi4py_barrier_callback)(int);
+
 /*! \brief Initialize memory allocation for a vector structure
  *
  * \param [in]       v

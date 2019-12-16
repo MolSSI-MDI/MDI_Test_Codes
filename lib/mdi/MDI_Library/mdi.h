@@ -112,6 +112,12 @@ DllExport int MDI_Set_Execute_Command_Func(int (*generic_command)(const char*, M
 
 // functions for managing callback functions for mpi4py
 DllExport int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, MDI_Comm));
+DllExport int MDI_Set_Mpi4py_Send_Callback(int (*mpi4py_send)(void*, int, int, MDI_Comm));
+DllExport int MDI_Set_Mpi4py_Gather_Names_Callback(int (*mpi4py_gather_names)(void*, void*));
+DllExport int MDI_Set_Mpi4py_Split_Callback(int (*mpi4py_split)(int, int));
+DllExport int MDI_Set_Mpi4py_Rank_Callback(int (*mpi4py_rank)(int));
+DllExport int MDI_Set_Mpi4py_Size_Callback(int (*mpi4py_size)(int));
+DllExport int MDI_Set_Mpi4py_Barrier_Callback(int (*mpi4py_barrier)(int));
 
 // only used internally by MDI
 DllExport void mdi_error(const char* message);

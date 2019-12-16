@@ -140,7 +140,7 @@ mdi.MDI_Set_Mpi4py_Recv_Callback.argtypes = [mpi4py_recv_func_type]
 def mpi4py_recv_callback(buf, count, datatype, mdi_comm):
     print("Start of python callback")
     nparray = np.ctypeslib.as_array(buf, shape=[count])
-    nparray[3] = '_'
+    #nparray[3] = '_'
     print("nparray: " + str(nparray))
     return 0
 
@@ -149,6 +149,34 @@ mpi4py_recv_callback_c = mpi4py_recv_func_type( mpi4py_recv_callback )
 def set_mpi4py_recv_callback():
     global mpi4py_recv_callback_c
     mdi.MDI_Set_Mpi4py_Recv_Callback( mpi4py_recv_callback_c )
+
+##################################################
+# MPI4Py Send Callback                           #
+##################################################
+
+# define the type of the callback function
+mpi4py_send_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+                                         ctypes.c_int, # count
+                                         ctypes.c_int, # datatype
+                                         ctypes.c_int) # comm
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Send_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Send_Callback.argtypes = [mpi4py_send_func_type]
+
+# define the python callback function
+def mpi4py_send_callback(buf, count, datatype, mdi_comm):
+    print("Start of python callback")
+    nparray = np.ctypeslib.as_array(buf, shape=[count])
+    print("nparray: " + str(nparray))
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_send_callback_c = mpi4py_send_func_type( mpi4py_send_callback )
+def set_mpi4py_send_callback():
+    global mpi4py_send_callback_c
+    mdi.MDI_Set_Mpi4py_Send_Callback( mpi4py_send_callback_c )
 
 
 #########################################################
