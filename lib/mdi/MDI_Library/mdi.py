@@ -70,8 +70,6 @@ world_comm = None
 
 intra_code_comm = None
 
-mdi_manager = None
-
 # dictionary of mpi4py communicators
 mpi4py_comms = {}
 
@@ -121,12 +119,6 @@ def delete_code_state(mdi_comm):
     # if there is an mpi4py communicator associated with this mdi_comm, delete it
     if mdi_comm in mpi4py_comms:
         del mpi4py_comms[mdi_comm]
-
-#########################################################
-#########################################################
-#########################################################
-#########################################################
-#########################################################
 
 ##################################################
 # MPI4Py Recv Callback                           #
@@ -406,20 +398,12 @@ def set_mpi4py_split_callback():
 
 
 
-#########################################################
-#########################################################
-#########################################################
-#########################################################
-#########################################################
-
-
 # MDI_Init
 mdi.MDI_Init.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_void_p]
 mdi.MDI_Init.restype = ctypes.c_int
 def MDI_Init(arg1, comm):
     global world_comm
     global intra_code_comm
-    global mdi_manager
 
     # append the _language option, so that MDI knows this is a Python code
     arg1 = arg1 + " _language Python"
@@ -472,174 +456,147 @@ def MDI_Init(arg1, comm):
 
 def MDI_Get_Intra_Code_MPI_Comm():
     global intra_code_comm
-    if mdi_manager:
-        return mdi_manager.intra_code_comm
-    else:
-        return intra_code_comm
+    return intra_code_comm
 
 # MDI_Accept_Communicator
 mdi.MDI_Accept_Communicator.argtypes = [ctypes.POINTER(ctypes.c_int)]
 mdi.MDI_Accept_Communicator.restype = ctypes.c_int
 def MDI_Accept_Communicator():
-    global mdi_manager
-    if mdi_manager:
-        return mdi_manager.Accept_Communicator()
-    else:
-        comm = ctypes.c_int()
-        ret = mdi.MDI_Accept_Communicator(ctypes.byref(comm))
-        if ret != 0:
-            raise Exception("MDI Error: MDI_Accept_Communicator failed")
-        return comm.value
+    comm = ctypes.c_int()
+    ret = mdi.MDI_Accept_Communicator(ctypes.byref(comm))
+    if ret != 0:
+        raise Exception("MDI Error: MDI_Accept_Communicator failed")
+    return comm.value
 
 # MDI_Send
 mdi.MDI_Send.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
 mdi.MDI_Send.restype = ctypes.c_int
 def MDI_Send(arg1, arg2, arg3, arg4):
+    if (arg3 == MDI_INT):
+        arg_type = ctypes.c_int
+        mdi_type = MDI_INT
+    elif (arg3 == MDI_DOUBLE):
+        arg_type = ctypes.c_double
+        mdi_type = MDI_DOUBLE
+    elif (arg3 == MDI_CHAR):
+        arg_type = ctypes.c_char
+        mdi_type = MDI_CHAR
+    elif (arg3 == MDI_INT_NUMPY):
+        if not use_numpy:
+            raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
+        arg_type = ctypes.c_int
+        data = arg1.astype(np.int32)
+        data = data.ctypes.data_as(ctypes.c_char_p)
+        mdi_type = MDI_INT
+    elif (arg3 == MDI_DOUBLE_NUMPY):
+        if not use_numpy:
+            raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
+        arg_type = ctypes.c_double
+        data = arg1.astype(np.float64)
+        data = data.ctypes.data_as(ctypes.c_char_p)
+        mdi_type = MDI_DOUBLE
 
-    if mdi_manager:
+    if arg3 == MDI_CHAR:
+        data_temp = arg1.encode('utf-8')
+        data = ctypes.c_char_p(data_temp)
 
-        mdi_manager.Send(arg1,arg2,arg3,arg4)
-
-    else:
-
-        if (arg3 == MDI_INT):
-            arg_type = ctypes.c_int
-            mdi_type = MDI_INT
-        elif (arg3 == MDI_DOUBLE):
-            arg_type = ctypes.c_double
-            mdi_type = MDI_DOUBLE
-        elif (arg3 == MDI_CHAR):
-            arg_type = ctypes.c_char
-            mdi_type = MDI_CHAR
-        elif (arg3 == MDI_INT_NUMPY):
-            if not use_numpy:
-                raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
-            arg_type = ctypes.c_int
-            data = arg1.astype(np.int32)
-            data = data.ctypes.data_as(ctypes.c_char_p)
-            mdi_type = MDI_INT
-        elif (arg3 == MDI_DOUBLE_NUMPY):
-            if not use_numpy:
-                raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
-            arg_type = ctypes.c_double
-            data = arg1.astype(np.float64)
-            data = data.ctypes.data_as(ctypes.c_char_p)
-            mdi_type = MDI_DOUBLE
-
-        if arg3 == MDI_CHAR:
-            data_temp = arg1.encode('utf-8')
-            data = ctypes.c_char_p(data_temp)
-
-        elif arg3 == MDI_INT or arg3 == MDI_DOUBLE:
-            if not isinstance(arg1, list):
-                if arg2 == 1:
-                    if arg3 == MDI_DOUBLE:
-                        data_temp = ctypes.pointer((ctypes.c_double)(arg1))
-                    elif arg3 == MDI_INT:
-                        data_temp = ctypes.pointer((ctypes.c_int)(arg1))
-                    data = ctypes.cast(data_temp, ctypes.POINTER(ctypes.c_char))
-                else:
-                    raise Exception("MDI Error: MDI_Send requires a list if length != 1 and datatype = MDI_INT or MDI_DOUBLE")
-            else:
-                data_temp = (arg_type*arg2)(*arg1)
+    elif arg3 == MDI_INT or arg3 == MDI_DOUBLE:
+        if not isinstance(arg1, list):
+            if arg2 == 1:
+                if arg3 == MDI_DOUBLE:
+                    data_temp = ctypes.pointer((ctypes.c_double)(arg1))
+                elif arg3 == MDI_INT:
+                    data_temp = ctypes.pointer((ctypes.c_int)(arg1))
                 data = ctypes.cast(data_temp, ctypes.POINTER(ctypes.c_char))
+            else:
+                raise Exception("MDI Error: MDI_Send requires a list if length != 1 and datatype = MDI_INT or MDI_DOUBLE")
+        else:
+            data_temp = (arg_type*arg2)(*arg1)
+            data = ctypes.cast(data_temp, ctypes.POINTER(ctypes.c_char))
 
-        return mdi.MDI_Send(data, arg2, ctypes.c_int(mdi_type), arg4)
+    return mdi.MDI_Send(data, arg2, ctypes.c_int(mdi_type), arg4)
 
 # MDI_Recv
 mdi.MDI_Recv.restype = ctypes.c_int
 def MDI_Recv(arg2, arg3, arg4):
+    if (arg3 == MDI_INT):
+        mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        arg_type = ctypes.c_int
+        mdi_type = MDI_INT
+    elif (arg3 == MDI_DOUBLE):
+        mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        arg_type = ctypes.c_double
+        mdi_type = MDI_DOUBLE
+    elif (arg3 == MDI_CHAR):
+        mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        arg_type = ctypes.c_char
+        mdi_type = MDI_CHAR
+    elif (arg3 == MDI_INT_NUMPY):
+        if not use_numpy:
+            raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
+        mdi.MDI_Recv.argtypes = [np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags='C_CONTIGUOUS'), 
+                                 ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        arg_type = ctypes.c_int
+        mdi_type = MDI_INT
+    elif (arg3 == MDI_DOUBLE_NUMPY):
+        if not use_numpy:
+            raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
+        mdi.MDI_Recv.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'), 
+                                 ctypes.c_int, ctypes.c_int, ctypes.c_int]
+        arg_type = ctypes.c_double
+        mdi_type = MDI_DOUBLE
 
-    if mdi_manager:
-        return mdi_manager.Recv(arg2, arg3, arg4)
+    if (arg3 == MDI_DOUBLE_NUMPY):
+        arg1 = np.zeros(arg2, dtype='float64')
+    elif (arg3 == MDI_INT_NUMPY):
+        arg1 = np.zeros(arg2, dtype='int32')
+    elif (arg3 == MDI_INT or arg3 == MDI_DOUBLE or arg3 == MDI_CHAR):
+        arg_size = ctypes.sizeof(arg_type)
+        arg1 = (ctypes.c_char*(arg2*arg_size))()
+    ret = mdi.MDI_Recv(arg1, arg2, ctypes.c_int(mdi_type), arg4)
+    if ret != 0:
+        raise Exception("MDI Error: MDI_Recv failed")
 
+    if (arg3 == MDI_INT_NUMPY):
+        return arg1
+    elif (arg3 == MDI_DOUBLE_NUMPY):
+        return arg1
+
+    result = ctypes.cast(arg1, ctypes.POINTER(arg_type*arg2)).contents
+
+    if (arg3 == MDI_CHAR):
+        # if this is an MDI_CHAR, convert it to a python string
+        presult = ctypes.cast(result, ctypes.c_char_p).value
+        presult = presult.decode('utf-8')
     else:
-
-        if (arg3 == MDI_INT):
-            mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
-            arg_type = ctypes.c_int
-            mdi_type = MDI_INT
-        elif (arg3 == MDI_DOUBLE):
-            mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
-            arg_type = ctypes.c_double
-            mdi_type = MDI_DOUBLE
-        elif (arg3 == MDI_CHAR):
-            mdi.MDI_Recv.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int, ctypes.c_int, ctypes.c_int]
-            arg_type = ctypes.c_char
-            mdi_type = MDI_CHAR
-        elif (arg3 == MDI_INT_NUMPY):
-            if not use_numpy:
-                raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
-            mdi.MDI_Recv.argtypes = [np.ctypeslib.ndpointer(dtype=np.int32, ndim=1, flags='C_CONTIGUOUS'), 
-                                     ctypes.c_int, ctypes.c_int, ctypes.c_int]
-            arg_type = ctypes.c_int
-            mdi_type = MDI_INT
-        elif (arg3 == MDI_DOUBLE_NUMPY):
-            if not use_numpy:
-                raise Exception("MDI Error: Attempting to use a Numpy array, but the Numpy package was not found")
-            mdi.MDI_Recv.argtypes = [np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'), 
-                                     ctypes.c_int, ctypes.c_int, ctypes.c_int]
-            arg_type = ctypes.c_double
-            mdi_type = MDI_DOUBLE
-
-        if (arg3 == MDI_DOUBLE_NUMPY):
-            arg1 = np.zeros(arg2, dtype='float64')
-        elif (arg3 == MDI_INT_NUMPY):
-            arg1 = np.zeros(arg2, dtype='int32')
-        elif (arg3 == MDI_INT or arg3 == MDI_DOUBLE or arg3 == MDI_CHAR):
-            arg_size = ctypes.sizeof(arg_type)
-            arg1 = (ctypes.c_char*(arg2*arg_size))()
-        ret = mdi.MDI_Recv(arg1, arg2, ctypes.c_int(mdi_type), arg4)
-        if ret != 0:
-            raise Exception("MDI Error: MDI_Recv failed")
-
-        if (arg3 == MDI_INT_NUMPY):
-            return arg1
-        elif (arg3 == MDI_DOUBLE_NUMPY):
-            return arg1
-
-        result = ctypes.cast(arg1, ctypes.POINTER(arg_type*arg2)).contents
-
-        if (arg3 == MDI_CHAR):
-            # if this is an MDI_CHAR, convert it to a python string
-            presult = ctypes.cast(result, ctypes.c_char_p).value
-            presult = presult.decode('utf-8')
+        if arg2 == 1:
+            presult = result[0]
         else:
-            if arg2 == 1:
-                presult = result[0]
-            else:
-                presult = [ result[i] for i in range(arg2) ]
+            presult = [ result[i] for i in range(arg2) ]
 
-        return presult
+    return presult
 
 # MDI_Send_Command
 mdi.MDI_Send_Command.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int]
 mdi.MDI_Send_Command.restype = ctypes.c_int
 def MDI_Send_Command(arg1, arg2):
-    if mdi_manager:
-        return mdi_manager.Send_Command(arg1, arg2)
-    else:
-        command = arg1.encode('utf-8')
-        return mdi.MDI_Send_Command(ctypes.c_char_p(command), arg2)
+    command = arg1.encode('utf-8')
+    return mdi.MDI_Send_Command(ctypes.c_char_p(command), arg2)
 
 # MDI_Recv_Command
 mdi.MDI_Recv_Command.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_int]
 mdi.MDI_Recv_Command.restype = ctypes.c_int
 def MDI_Recv_Command(arg2): 
-    if mdi_manager:
-        presult = mdi_manager.Recv_Command(arg2)
+    arg_size = ctypes.sizeof(ctypes.c_char)
+    arg1 = (ctypes.c_char*(MDI_COMMAND_LENGTH*arg_size))()
 
-    else:
-        arg_size = ctypes.sizeof(ctypes.c_char)
-        arg1 = (ctypes.c_char*(MDI_COMMAND_LENGTH*arg_size))()
+    ret = mdi.MDI_Recv_Command(arg1, arg2)
+    if ret != 0:
+        raise Exception("MDI Error: MDI_Recv_Command failed")
 
-        ret = mdi.MDI_Recv_Command(arg1, arg2)
-        if ret != 0:
-            raise Exception("MDI Error: MDI_Recv_Command failed")
-
-        result = ctypes.cast(arg1, ctypes.POINTER(ctypes.c_char*MDI_COMMAND_LENGTH)).contents
-        presult = ctypes.cast(result, ctypes.c_char_p).value
-        presult = presult.decode('utf-8')
+    result = ctypes.cast(arg1, ctypes.POINTER(ctypes.c_char*MDI_COMMAND_LENGTH)).contents
+    presult = ctypes.cast(result, ctypes.c_char_p).value
+    presult = presult.decode('utf-8')
 
     # delete all state associated with this code
     if presult == "EXIT":
