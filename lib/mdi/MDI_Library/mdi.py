@@ -241,9 +241,7 @@ def mpi4py_size_callback(comm_flag):
     if comm:
         return comm.Get_size()
     else:
-        raise Exception("MDI Error: Unable to find mpi communicator in mpi4py_size_callback")
-
-    return 0
+        return -1
 
 # define the python function that will set the callback function in c
 mpi4py_size_callback_c = mpi4py_size_func_type( mpi4py_size_callback )
@@ -279,9 +277,7 @@ def mpi4py_rank_callback(comm_flag):
     if comm:
         return comm.Get_rank()
     else:
-        raise Exception("MDI Error: Unable to find mpi communicator in mpi4py_rank_callback")
-
-    return 0
+        return -1
 
 # define the python function that will set the callback function in c
 mpi4py_rank_callback_c = mpi4py_rank_func_type( mpi4py_rank_callback )
