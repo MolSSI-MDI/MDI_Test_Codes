@@ -4,7 +4,6 @@ import os
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 import ctypes
-from .mdi_mpi4py import MPI4PYManager
 
 # attempt to import numpy
 try:
@@ -114,10 +113,14 @@ def MDI_Get_Current_Code():
     return mdi.MDI_Get_Current_Code()
 
 # delete all Python state associated with the current code
-def delete_code_state():
+def delete_code_state(mdi_comm):
     current_code = MDI_Get_Current_Code()
     if current_code in execute_command_dict.keys():
         del execute_command_dict[current_code]
+
+    # if there is an mpi4py communicator associated with this mdi_comm, delete it
+    if mdi_comm in mpi4py_comms:
+        del mpi4py_comms[mdi_comm]
 
 #########################################################
 #########################################################
@@ -462,16 +465,6 @@ def MDI_Init(arg1, comm):
         if not use_numpy:
             raise Exception("MDI Error: When using the MPI communication method, numpy must be available")
 
-        # initialize a new code object
-#        new_code = MDI_Initialize_New_Code()
-#        MDI_Set_Current_Code(new_code)
-
-#        mdi_manager = MPI4PYManager(arg1, comm)
-
-#        return 0
-
-#    else:
-
     # call MDI_Init
     ret = mdi.MDI_Init(ctypes.c_char_p(command), mpi_communicator_ptr )
 
@@ -650,7 +643,7 @@ def MDI_Recv_Command(arg2):
 
     # delete all state associated with this code
     if presult == "EXIT":
-        delete_code_state()
+        delete_code_state(arg2)
 
     return presult
 
@@ -684,7 +677,7 @@ def MDI_Execute_Command_py(command, comm, class_obj):
     ret = execute_command_dict[current_code][0](command_py, comm, class_obj_real)
 
     if command_py == "EXIT":
-        delete_code_state()
+        delete_code_state(comm)
     return ret
 
 # MDI_Set_Execute_Command_Func
