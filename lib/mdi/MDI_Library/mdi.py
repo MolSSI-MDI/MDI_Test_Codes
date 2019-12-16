@@ -457,8 +457,10 @@ def MDI_Init(arg1, comm):
     set_mpi4py_barrier_callback()
     set_mpi4py_split_callback()
 
-    # if the communication method is MPI, assign the names of the codes
-#    if mdi_method == "MPI":
+    # if using MPI, ensure that numpy is available
+    if mdi_method == "MPI":
+        if not use_numpy:
+            raise Exception("MDI Error: When using the MPI communication method, numpy must be available")
 
         # initialize a new code object
 #        new_code = MDI_Initialize_New_Code()
