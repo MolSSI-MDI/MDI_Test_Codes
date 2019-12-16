@@ -336,6 +336,16 @@ int general_init(const char* options, void* world_comm) {
   free( argv_line );
   free( argv );
 
+  /////////////////////
+  // test numpy return buffer
+  /*
+  char* buf = malloc( MDI_COMMAND_LENGTH * sizeof(char) );
+  strcpy(buf,"Hello");
+  mpi4py_recv_callback(buf, MDI_COMMAND_LENGTH, MDI_CHAR, 0);
+  printf("C Return: %s\n",buf);
+  */
+  /////////////////////
+
   return 0;
 }
 

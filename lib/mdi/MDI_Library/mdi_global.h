@@ -98,6 +98,9 @@ extern int ipi_compatibility;
 /*! \brief Flag for whether MDI has been previously initialized */
 extern int is_initialized;
 
+/*! \brief Python callback pointer for MPI_Recv */
+extern int (*mpi4py_recv_callback)(void*, int, int, MDI_Comm_Type);
+
 int vector_init(vector* v, size_t stride);
 int vector_push_back(vector* v, void* element);
 void* vector_get(vector* v, int index);

@@ -21,6 +21,9 @@ int ipi_compatibility = 0;
 /*! \brief Flag for whether MDI has been previously initialized */
 int is_initialized = 0;
 
+/*! \brief Python callback pointer for MPI_Recv */
+int (*mpi4py_recv_callback)(void*, int, int, MDI_Comm_Type);
+
 /*! \brief Initialize memory allocation for a vector structure
  *
  * \param [in]       v
@@ -220,6 +223,10 @@ int new_code() {
   new_code.is_library = 0;
   new_code.id = codes.size;
   new_code.intra_rank = 0;
+
+  // Set the MPI callbacks
+  //new_code.mdi_mpi_recv = MPI_Recv;
+  //int (*mpi4py_recv_callback)(void*, int, int, MDI_Comm_Type);
 
   // add the new code to the global vector of codes
   vector_push_back( &codes, &new_code );

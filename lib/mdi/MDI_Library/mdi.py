@@ -115,6 +115,49 @@ def delete_code_state():
     if current_code in execute_command_dict.keys():
         del execute_command_dict[current_code]
 
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+
+##################################################
+# MPI4Py Recv Callback                           #
+##################################################
+
+# define the type of the callback function
+mpi4py_recv_func_type = ctypes.CFUNCTYPE(ctypes.c_int, # return
+                                         ctypes.POINTER(ctypes.c_char), # buf (ctypes.c_void_p?)
+                                         ctypes.c_int, # count
+                                         ctypes.c_int, # datatype
+                                         ctypes.c_int) # comm
+
+# define the c function that allows the callback function to be set
+mdi.MDI_Set_Mpi4py_Recv_Callback.restype = ctypes.c_int
+mdi.MDI_Set_Mpi4py_Recv_Callback.argtypes = [mpi4py_recv_func_type]
+
+# define the python callback function
+def mpi4py_recv_callback(buf, count, datatype, mdi_comm):
+    print("Start of python callback")
+    nparray = np.ctypeslib.as_array(buf, shape=[count])
+    nparray[3] = '_'
+    print("nparray: " + str(nparray))
+    return 0
+
+# define the python function that will set the callback function in c
+mpi4py_recv_callback_c = mpi4py_recv_func_type( mpi4py_recv_callback )
+def set_mpi4py_recv_callback():
+    global mpi4py_recv_callback_c
+    mdi.MDI_Set_Mpi4py_Recv_Callback( mpi4py_recv_callback_c )
+
+
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+#########################################################
+
+
 # MDI_Init
 mdi.MDI_Init.argtypes = [ctypes.POINTER(ctypes.c_char), ctypes.c_void_p]
 mdi.MDI_Init.restype = ctypes.c_int
@@ -150,6 +193,9 @@ def MDI_Init(arg1, comm):
             mdi_method = args[i+1]
     if not mdi_method:
         raise Exception("MDI Error: Unable to find -name option")
+
+    # set the MPI4Py callback functions
+    set_mpi4py_recv_callback()
     
     # if the communication method is MPI, assign the names of the codes
     if mdi_method == "MPI":
@@ -399,6 +445,7 @@ def MDI_Set_Execute_Command_Func(func, class_obj):
     ret = mdi.MDI_Set_Execute_Command_Func( MDI_Execute_Command_c, class_obj_pointer )
     if ret != 0:
         raise Exception("MDI Error: MDI_Set_Execute_Command_Func failed")
+
 
 
 ##################################################

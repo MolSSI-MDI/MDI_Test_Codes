@@ -110,6 +110,9 @@ DllExport int MDI_Get_Callback(const char* node_name, int index, MDI_Comm comm, 
 // functions for managing callback functions (used only with the LIBRARY communication method)
 DllExport int MDI_Set_Execute_Command_Func(int (*generic_command)(const char*, MDI_Comm, void*), void* class_object);
 
+// functions for managing callback functions for mpi4py
+DllExport int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, MDI_Comm));
+
 // only used internally by MDI
 DllExport void mdi_error(const char* message);
 DllExport int MDI_Get_MPI_Code_Rank();

@@ -1107,3 +1107,18 @@ void MDI_Set_Current_Code(int current_code_in) {
 int MDI_Get_Current_Code() {
   return current_code;
 }
+
+
+/*! \brief Set the callback MDI uses for MPI_Recv when using mpi4py
+ *
+ * The function returns \p 0 on a success.
+ *
+ * \param [in]       mpi4py_recv
+ *                   Function pointer to the mpi4py_recv callback
+ */
+int MDI_Set_Mpi4py_Recv_Callback(int (*mpi4py_recv)(void*, int, int, MDI_Comm)) {
+  //this_code->execute_command = generic_command;
+  //this_code->execute_command_obj = class_object;
+  mpi4py_recv_callback = mpi4py_recv;
+  return 0;
+}
