@@ -78,6 +78,8 @@ typedef struct code_struct {
   int (*execute_command)(const char*, MDI_Comm_Type, void*);
   /*! \brief Pointer to the class object that is passed to any call to execute_command */
   void* execute_command_obj;
+  /*! \brief Flag whether this code is Python */
+  int is_python;
   /*! \brief Flag whether this code is being used as a library
   0: Not a library
   1: Is an ENGINE library, but has not connected to the driver
@@ -97,6 +99,27 @@ extern int ipi_compatibility;
 
 /*! \brief Flag for whether MDI has been previously initialized */
 extern int is_initialized;
+
+/*! \brief Python callback pointer for MPI_Recv */
+extern int (*mpi4py_recv_callback)(void*, int, int, int, MDI_Comm_Type);
+
+/*! \brief Python callback pointer for MPI_Send */
+extern int (*mpi4py_send_callback)(void*, int, int, int, MDI_Comm_Type);
+
+/*! \brief Python callback pointer for gathering names */
+extern int (*mpi4py_gather_names_callback)(void*, void*);
+
+/*! \brief Python callback pointer for MPI_Comm_split */
+extern int (*mpi4py_split_callback)(int, int, MDI_Comm_Type, int);
+
+/*! \brief Python callback pointer for MPI_Comm_rank */
+extern int (*mpi4py_rank_callback)(int);
+
+/*! \brief Python callback pointer for MPI_Comm_size */
+extern int (*mpi4py_size_callback)(int);
+
+/*! \brief Python callback pointer for MPI_Comm_barrier */
+extern int (*mpi4py_barrier_callback)(int);
 
 int vector_init(vector* v, size_t stride);
 int vector_push_back(vector* v, void* element);

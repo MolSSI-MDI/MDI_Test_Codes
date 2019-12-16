@@ -250,6 +250,7 @@ int general_init(const char* options, void* world_comm) {
   // determine whether the intra-code MPI communicator should be split by mpi_init_mdi
   int do_split = 1;
   if ( strcmp(language, "Python") == 0 ) {
+    this_code->is_python = 1;
     do_split = 0;
   }
 
